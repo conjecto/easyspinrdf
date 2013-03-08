@@ -1,0 +1,25 @@
+{
+    "name": "conjecto/easyspinrdf",
+    "description": "SPIN implementation using the awsome EasyRdf",
+    "version": "0.1.0-beta.1",
+    "type": "library",
+    "license": "BSD-3-Clause",
+    "authors": [
+        {
+            "name": "Blaise de Carné",
+            "email": "blaise@conjecto.com",
+            "homepage": "http://www.conjecto.com",
+            "role": "Developer"
+        }
+    ],
+    "require": {
+        "php": ">=5.2.8",
+        "easyrdf/easyrdf": ">=0.8.0-beta.1"
+    },
+    "require-dev": {
+        "phpunit/PHPUnit": ">=3.5.15"
+    },
+    "autoload": {
+        "psr-0": { "EasySpinRdf_": "lib/" }
+    }
+}
