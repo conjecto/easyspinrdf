@@ -36,14 +36,26 @@
  */
 
 /**
- * Class that represents an SPIN Ask Query
+ * Class that represents an SPIN bind expression
  *
  * @package    EasySpinRdf
  * @copyright  Conjecto - Blaise de Carné
  * @license    http://www.opensource.org/licenses/bsd-license.php
  */
-class EasySpinRdf_Query_Ask extends EasySpinRdf_Query
+class EasySpinRdf_Expression_Bind extends EasySpinRdf_Expression
 {
-    /** query keyword */
-    const SPARQL_QUERY_KEYWORD = "ASK";
+    /**
+     * Get the SPARQL representation of the bind expression
+     */
+    function getSparql()
+    {
+        $variable = $this->get('sp:variable');
+        $expression = $this->get('sp:expression');
+
+        if(!$variable || !$expression) {
+            throw new EasyRdf_Exception('The SPIN bind expression is not complete');
+        }
+
+        return "BIND(" . $this->resourceToSparql($expression). " AS ". $this->resourceToSparql($variable) .")";
+    }
 }

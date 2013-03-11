@@ -1,0 +1,67 @@
+@prefix rdf:     <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
+@prefix test: <http://www.example.org/test-easyspinrdf#>.
+@prefix spl:    <http://spinrdf.org/spl#>.
+@prefix spin:    <http://spinrdf.org/spin#>.
+@prefix sp:    <http://spinrdf.org/sp#>.
+
+test:avg
+    a sp:Select ;
+    sp:resultVariables ([
+        a sp:Avg ;
+        sp:expression sp:_object
+    ]) ;
+    sp:where ([
+        sp:object sp:_object ;
+        sp:predicate spin:_arg1 ;
+        sp:subject spin:_this
+    ]) .
+
+test:count
+    a sp:Select ;
+    sp:resultVariables ([
+        a sp:Count ;
+        sp:expression sp:_object
+    ]) ;
+    sp:where ([
+        sp:object sp:_object ;
+        sp:predicate spin:_arg1 ;
+        sp:subject spin:_this
+    ]) .
+
+test:max
+    a sp:Select ;
+    sp:resultVariables ([
+        a sp:Max ;
+        sp:expression sp:_object
+    ]) ;
+    sp:where ([
+        sp:object sp:_object ;
+        sp:predicate spin:_arg1 ;
+        sp:subject spin:_this
+    ]) .
+
+test:min
+    a sp:Select ;
+    sp:resultVariables ([
+        a sp:Min ;
+        sp:expression sp:_object
+    ]) ;
+    sp:where ([
+        sp:object sp:_object ;
+        sp:predicate spin:_arg1 ;
+        sp:subject spin:_this
+    ]) .
+
+test:sum
+    a sp:Select ;
+    sp:resultVariables ([
+        a sp:Sum ;
+        sp:expression sp:_object
+    ]) ;
+    sp:where ([
+        sp:object sp:_object ;
+        sp:predicate spin:_arg1 ;
+        sp:subject spin:_this
+    ]) .

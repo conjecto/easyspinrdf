@@ -36,14 +36,14 @@
  */
 
 /**
- * Class that represents an SPIN Ask Query
+ * Class that represents an SPIN desc expression, for the ORDER BY part
  *
  * @package    EasySpinRdf
  * @copyright  Conjecto - Blaise de Carné
  * @license    http://www.opensource.org/licenses/bsd-license.php
  */
-class EasySpinRdf_Query_Ask extends EasySpinRdf_Query
+class EasySpinRdf_Expression_Aggregation_Desc extends EasySpinRdf_Expression_Aggregation
 {
-    /** query keyword */
-    const SPARQL_QUERY_KEYWORD = "ASK";
+    /** aggregation keyword */
+    const SPARQL_AGGREGATION_KEYWORD = "DESC";
 }

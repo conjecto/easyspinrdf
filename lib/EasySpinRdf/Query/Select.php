@@ -36,14 +36,39 @@
  */
 
 /**
- * Class that represents an SPIN Ask Query
+ * Class that represents an SPIN Select Query
  *
  * @package    EasySpinRdf
  * @copyright  Conjecto - Blaise de Carné
  * @license    http://www.opensource.org/licenses/bsd-license.php
  */
-class EasySpinRdf_Query_Ask extends EasySpinRdf_Query
+class EasySpinRdf_Query_Select extends EasySpinRdf_Query
 {
     /** query keyword */
-    const SPARQL_QUERY_KEYWORD = "ASK";
+    const SPARQL_QUERY_KEYWORD = "SELECT";
+
+    /**
+     * Get the variables list
+     * @return bool|string
+     */
+    public function getPattern()
+    {
+        $parts = array();
+
+        $distinct = $this->get('sp:distinct');
+        if($distinct && $distinct->isTrue()) {
+            $parts[] = "DISTINCT";
+        }
+
+        $variables = $this->get('sp:resultVariables');
+        if(!$variables) {
+            $parts[] = "*";
+        } else {
+            foreach($variables as $variable) {
+                $parts[] = $this->resourceToSparql($variable);
+            }
+        }
+
+        return join(" ", $parts);
+    }
 }

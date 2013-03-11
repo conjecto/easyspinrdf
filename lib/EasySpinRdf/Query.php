@@ -36,7 +36,7 @@
  */
 
 /**
- * Class that represents an SPIN Query
+ * Abstract class that represents an SPIN query
  *
  * @package    EasySpinRdf
  * @copyright  Conjecto - Blaise de Carné
@@ -45,7 +45,7 @@
 abstract class EasySpinRdf_Query extends EasySpinRdf_Resource
 {
     /** query keyword */
-    const SPARQL_KEYWORD = null;
+    const SPARQL_QUERY_KEYWORD = null;
 
     /**
      * Get the query comment
@@ -60,34 +60,27 @@ abstract class EasySpinRdf_Query extends EasySpinRdf_Resource
     /**
      * Get the statement list from a SPIN query property
      * @param $property
+     * @param $separator
      * @return bool|string
-     * @todo : find a better way to manage subquery exception
      */
-    public function getStatements($property)
+    public function getStatements($property, $separator = ".")
     {
         $statements = $this->get($property);
         if(!$statements) {
             return false;
         }
-        $sparql = "";
+        $parts = array();
         foreach($statements as $statement) {
-            if($sparql) {
-                // special case for subquery exception
-                if($statement->type() == 'sp:SubQuery')
-                    $sparql .= ". ";
-                else
-                    $sparql .= "; ";
-            }
-            $sparql .= $this->getStatement($statement);
+            $parts[] = $this->getStatement($statement);
         }
-        return $sparql;
+        return join($separator." ", $parts);
     }
 
     /**
      * Get the statement from a resource
      * @param $resource
      * @return string
-     * @throws Exception
+     * @throws EasyRdf_Exception
      */
     public function getStatement(EasyRdf_Resource $resource)
     {
@@ -107,29 +100,12 @@ abstract class EasySpinRdf_Query extends EasySpinRdf_Resource
     }
 
     /**
-     * Get the variables list
-     * @return bool|string
-     */
-    public function getVariables()
-    {
-        $variables = $this->get('sp:resultVariables');
-        if(!$variables) {
-            return false;
-        }
-        $parts = array();
-        foreach($variables as $variable) {
-            $parts[] = $this->resourceToSparql($variable);
-        }
-        return join(" ", $parts);
-    }
-
-    /**
-     * Get the templates part
+     * Get the specific pattern part
      * @return string
      */
-    public function getTemplates()
+    public function getPattern()
     {
-        return $this->getStatements('sp:templates');
+        return false;
     }
 
     /**
@@ -160,12 +136,42 @@ abstract class EasySpinRdf_Query extends EasySpinRdf_Resource
     }
 
     /**
+     * Get the ORDER BY part
+     * @return string
+     */
+    public function getOrderBy()
+    {
+        $orderBy = $this->get('sp:orderBy');
+        if($orderBy) {
+            return $this->resourceToSparql($orderBy);
+        }
+        return null;
+    }
+
+    /**
      * Get the LIMIT part
      * @return string
      */
     public function getLimit()
     {
-        return $this->get('sp:limit');
+        $limit = $this->get('sp:limit');
+        if($limit) {
+            return $limit->getValue();
+        }
+        return null;
+    }
+
+    /**
+     * Get the OFFSET part
+     * @return string
+     */
+    public function getOffset()
+    {
+        $offset = $this->get('sp:offset');
+        if($offset) {
+            return $offset->getValue();
+        }
+        return null;
     }
 
     /**
@@ -176,24 +182,18 @@ abstract class EasySpinRdf_Query extends EasySpinRdf_Resource
     {
         $sparql = "";
         if($this->getComment()) {
-            $sparql .= "#".$this->getComment()."\n";
+            $sparql .= "# ".$this->getComment()."\n";
         }
 
         // query keyword
-        if($this::SPARQL_KEYWORD) {
-            $sparql .= $this::SPARQL_KEYWORD;
+        if($this::SPARQL_QUERY_KEYWORD) {
+            $sparql .= $this::SPARQL_QUERY_KEYWORD;
         }
 
-        // variables
-        $variables = $this->getVariables();
-        if($variables) {
-            $sparql .= " $variables";
-        }
-
-        // templates
-        $templates = $this->getTemplates();
-        if($templates) {
-            $sparql .= " { $templates }";
+        // pattern
+        $pattern = $this->getPattern();
+        if($pattern) {
+            $sparql .= " $pattern";
         }
 
         // where
@@ -202,10 +202,22 @@ abstract class EasySpinRdf_Query extends EasySpinRdf_Resource
             $sparql .= " WHERE { $where }";
         }
 
+        // order
+        $orderBy = $this->getOrderBy();
+        if($orderBy) {
+            $sparql .= " ORDER BY $orderBy";
+        }
+
         // limit
         $limit = $this->getLimit();
         if($limit) {
             $sparql .= " LIMIT $limit";
+        }
+
+        // offset
+        $offset = $this->getOffset();
+        if($offset) {
+            $sparql .= " OFFSET $offset";
         }
 
         return $sparql;

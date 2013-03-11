@@ -35,15 +35,50 @@
  * @license    http://www.opensource.org/licenses/bsd-license.php
  */
 
-/**
- * Class that represents an SPIN Ask Query
- *
- * @package    EasySpinRdf
- * @copyright  Conjecto - Blaise de Carné
- * @license    http://www.opensource.org/licenses/bsd-license.php
- */
-class EasySpinRdf_Query_Ask extends EasySpinRdf_Query
+require_once dirname(dirname(dirname(__FILE__))) . DIRECTORY_SEPARATOR . 'TestHelper.php';
+
+class EasySpinRdf_Expression_AggregationTest extends EasySpinRdf_TestCase
 {
-    /** query keyword */
-    const SPARQL_QUERY_KEYWORD = "ASK";
+    var $graph;
+
+    public function setUp()
+    {
+        $this->graph = new EasyRdf_Graph();
+        $this->graph->parse(readFixture('expression/aggregation.ttl'), 'turtle');
+    }
+
+    public function testAvg()
+    {
+        $query = $this->graph->resource('test:avg');
+        $this->assertClass('EasySpinRdf_Query_Select', $query);
+        $this->assertStringEquals("SELECT AVG(?object) WHERE { ?this ?arg1 ?object }", $query->getSparql());
+    }
+
+    public function testCount()
+    {
+        $query = $this->graph->resource('test:count');
+        $this->assertClass('EasySpinRdf_Query_Select', $query);
+        $this->assertStringEquals("SELECT COUNT(?object) WHERE { ?this ?arg1 ?object }", $query->getSparql());
+    }
+
+    public function testMax()
+    {
+        $query = $this->graph->resource('test:max');
+        $this->assertClass('EasySpinRdf_Query_Select', $query);
+        $this->assertStringEquals("SELECT MAX(?object) WHERE { ?this ?arg1 ?object }", $query->getSparql());
+    }
+
+    public function testMin()
+    {
+        $query = $this->graph->resource('test:min');
+        $this->assertClass('EasySpinRdf_Query_Select', $query);
+        $this->assertStringEquals("SELECT MIN(?object) WHERE { ?this ?arg1 ?object }", $query->getSparql());
+    }
+
+    public function testSum()
+    {
+        $query = $this->graph->resource('test:sum');
+        $this->assertClass('EasySpinRdf_Query_Select', $query);
+        $this->assertStringEquals("SELECT SUM(?object) WHERE { ?this ?arg1 ?object }", $query->getSparql());
+    }
 }

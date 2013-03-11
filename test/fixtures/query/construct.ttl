@@ -6,18 +6,17 @@
 @prefix spin:    <http://spinrdf.org/spin#>.
 @prefix sp:    <http://spinrdf.org/sp#>.
 
-test:ask
-    a sp:Ask ;
-    rdfs:comment "must be at least 18 years old"^^xsd:string ;
-    sp:where ([
-        sp:object _:b1 ;
-        sp:predicate test:age ;
-        sp:subject spin:_this
-    ] [
-        a sp:Filter ;
-        sp:expression [
-            a sp:ge ;
-            sp:arg1 _:b1 ;
-            sp:arg2 18
-        ]
+test:construct
+    a sp:Construct ;
+    sp:templates ([ sp:object sp:_grandParent ;
+      sp:predicate test:grandParent ;
+      sp:subject spin:_this
+    ]) ;
+    sp:where ([ sp:object spin:_this ;
+      sp:predicate test:child ;
+      sp:subject sp:_parent
+    ]
+    [ sp:object sp:_parent ;
+      sp:predicate test:child ;
+      sp:subject sp:_grandParent
     ]) .

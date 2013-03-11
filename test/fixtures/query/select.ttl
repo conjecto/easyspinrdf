@@ -1,0 +1,81 @@
+@prefix rdf:     <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
+@prefix test: <http://www.example.org/test-easyspinrdf#>.
+@prefix spl:    <http://spinrdf.org/spl#>.
+@prefix spin:    <http://spinrdf.org/spin#>.
+@prefix sp:    <http://spinrdf.org/sp#>.
+
+test:select
+    a sp:Select ;
+    sp:where ([
+        sp:object sp:_object ;
+        sp:predicate test:predicate ;
+        sp:subject spin:_this
+    ]) .
+
+test:variables
+    a sp:Select ;
+    sp:resultVariables (spin:_this sp:_object) ;
+    sp:where ([
+        sp:object sp:_object ;
+        sp:predicate test:predicate ;
+        sp:subject spin:_this
+    ]) .
+
+test:distinct
+    a sp:Select ;
+    sp:distinct "true"^^xsd:boolean ;
+    sp:resultVariables (spin:_this) ;
+    sp:where ([
+        sp:object sp:_object ;
+        sp:predicate test:predicate ;
+        sp:subject spin:_this
+    ]) .
+
+test:limitOffset
+    a sp:Select ;
+    sp:resultVariables (spin:_this) ;
+    sp:where ([
+        sp:object sp:_object ;
+        sp:predicate test:predicate ;
+        sp:subject spin:_this
+    ]) ;
+    sp:limit "5"^^xsd:integer ;
+    sp:offset "10"^^xsd:integer .
+
+test:orderBy
+    a sp:Select ;
+    sp:where ([
+        sp:object sp:_value ;
+        sp:predicate test:predicate ;
+        sp:subject spin:_this
+    ]) ;
+    sp:orderBy (sp:_value).
+
+test:orderByExpression
+    a sp:Select ;
+    sp:where ([
+        sp:object sp:_value ;
+        sp:predicate test:predicate ;
+        sp:subject spin:_this
+    ]) ;
+    sp:orderBy ([
+        a sp:Max ;
+        sp:expression sp:_value
+    ]).
+
+test:orderByAscDesc
+    a sp:Select ;
+    sp:where ([
+        sp:object sp:_value ;
+        sp:predicate test:predicate ;
+        sp:subject spin:_this
+    ]) ;
+    sp:orderBy ([
+        a sp:Asc ;
+        sp:expression sp:_value
+    ] [
+        a sp:Desc ;
+        sp:expression sp:_this
+    ]).

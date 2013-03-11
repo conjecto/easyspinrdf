@@ -35,15 +35,18 @@
  * @license    http://www.opensource.org/licenses/bsd-license.php
  */
 
-/**
- * Class that represents an SPIN Ask Query
- *
- * @package    EasySpinRdf
- * @copyright  Conjecto - Blaise de Carné
- * @license    http://www.opensource.org/licenses/bsd-license.php
- */
-class EasySpinRdf_Query_Ask extends EasySpinRdf_Query
+require_once dirname(dirname(dirname(__FILE__))).DIRECTORY_SEPARATOR.'TestHelper.php';
+
+class EasySpinRdf_Query_DescribeTest extends EasySpinRdf_TestCase
 {
-    /** query keyword */
-    const SPARQL_QUERY_KEYWORD = "ASK";
+    public function testParseQuery()
+    {
+        $graph = new EasyRdf_Graph();
+        $graph->parse(readFixture('query/describe.ttl'), 'turtle');
+
+        $query = $graph->resource('test:describe');
+        $this->assertClass('EasySpinRdf_Query_Describe', $query);
+
+        $this->assertStringEquals("DESCRIBE ?value WHERE { ?this test:uncle ?value }", $query->getSparql());
+    }
 }

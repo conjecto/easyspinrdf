@@ -36,14 +36,46 @@
  */
 
 /**
- * Class that represents an SPIN Ask Query
+ * Class that represents an SPIN filter expression
  *
  * @package    EasySpinRdf
  * @copyright  Conjecto - Blaise de Carné
  * @license    http://www.opensource.org/licenses/bsd-license.php
  */
-class EasySpinRdf_Query_Ask extends EasySpinRdf_Query
+class EasySpinRdf_Expression_Filter extends EasySpinRdf_Expression
 {
-    /** query keyword */
-    const SPARQL_QUERY_KEYWORD = "ASK";
+    /**
+     * Get the SPARQL representation of the filter expression
+     * @todo : complete operator list
+     */
+    function getSparql()
+    {
+        $expression = $this->get('sp:expression');
+        $arg1 = $expression->get('sp:arg1');
+        $arg2 = $expression->get('sp:arg2');
+
+        if(!$expression || !$arg1 || !$arg2) {
+            throw new EasyRdf_Exception('The SPIN filter expression is not complete');
+        }
+
+        $type = $expression->type();
+        switch ($type) {
+            case "sp:lt":
+                $operator = "<";
+                break;
+            case "sp:gt":
+                $operator = ">";
+                break;
+            case "sp:ge":
+                $operator = ">=";
+                break;
+            case "sp:le":
+                $operator = "<=";
+                break;
+            default:
+                throw new EasyRdf_Exception('This SPIN filter expression type is not supported : ' . $type);
+        }
+
+        return "FILTER(" . $this->resourceToSparql($arg1) . " $operator " . $this->resourceToSparql($arg2) . ")";
+    }
 }

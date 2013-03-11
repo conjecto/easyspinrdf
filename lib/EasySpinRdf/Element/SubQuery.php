@@ -36,14 +36,20 @@
  */
 
 /**
- * Class that represents an SPIN Ask Query
+ * Class that represents an SPIN subquery element
  *
  * @package    EasySpinRdf
  * @copyright  Conjecto - Blaise de Carné
  * @license    http://www.opensource.org/licenses/bsd-license.php
  */
-class EasySpinRdf_Query_Ask extends EasySpinRdf_Query
+class EasySpinRdf_Element_SubQuery extends EasySpinRdf_Element
 {
-    /** query keyword */
-    const SPARQL_QUERY_KEYWORD = "ASK";
+    /**
+     * Get the SPARQL representation of the subquery element
+     */
+    public function getSparql()
+    {
+        $query = $this->get('sp:query');
+        return "{ " . $query->getSparql() . " }";
+    }
 }

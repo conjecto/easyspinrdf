@@ -42,7 +42,11 @@ class EasySpinRdf_Query_AskTest extends EasySpinRdf_TestCase
     public function testParseQuery()
     {
         $graph = new EasyRdf_Graph();
-        $graph->parse(readFixture('query_ask.ttl'), 'turtle');
-        $this->assertClass('EasySpinRdf_Query_Ask', $graph->resource('test:ask'));
+        $graph->parse(readFixture('query/ask.ttl'), 'turtle');
+
+        $query = $graph->resource('test:ask');
+        $this->assertClass('EasySpinRdf_Query_Ask', $query);
+
+        $this->assertStringEquals("# must be 18 years old\nASK WHERE { ?this test:age 18 }", $query->getSparql());
     }
 }

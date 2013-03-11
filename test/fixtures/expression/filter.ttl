@@ -1,0 +1,22 @@
+@prefix rdf:     <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
+@prefix test: <http://www.example.org/test-easyspinrdf#>.
+@prefix spl:    <http://spinrdf.org/spl#>.
+@prefix spin:    <http://spinrdf.org/spin#>.
+@prefix sp:    <http://spinrdf.org/sp#>.
+
+test:filter
+    a sp:Ask ;
+    sp:where ([
+        sp:object _:b1 ;
+        sp:predicate test:age ;
+        sp:subject spin:_this
+    ] [
+        a sp:Filter ;
+        sp:expression [
+            a sp:ge ;
+            sp:arg1 _:b1 ;
+            sp:arg2 18
+        ]
+    ]) .

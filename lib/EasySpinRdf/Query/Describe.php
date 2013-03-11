@@ -36,14 +36,31 @@
  */
 
 /**
- * Class that represents an SPIN Ask Query
+ * Class that represents an SPIN Describe Query
  *
  * @package    EasySpinRdf
  * @copyright  Conjecto - Blaise de Carné
  * @license    http://www.opensource.org/licenses/bsd-license.php
  */
-class EasySpinRdf_Query_Ask extends EasySpinRdf_Query
+class EasySpinRdf_Query_Describe extends EasySpinRdf_Query
 {
     /** query keyword */
-    const SPARQL_QUERY_KEYWORD = "ASK";
+    const SPARQL_QUERY_KEYWORD = "DESCRIBE";
+
+    /**
+     * Get the nodes list
+     * @return bool|string
+     */
+    public function getPattern()
+    {
+        $variables = $this->get('sp:resultNodes');
+        if(!$variables) {
+            return false;
+        }
+        $parts = array();
+        foreach($variables as $variable) {
+            $parts[] = $this->resourceToSparql($variable);
+        }
+        return join(" ", $parts);
+    }
 }

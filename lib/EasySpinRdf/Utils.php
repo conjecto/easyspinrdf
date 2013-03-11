@@ -46,5 +46,6 @@ class EasySpinRdf_Utils
         EasyRdf_TypeMapper::set('sp:Ask', 'EasySpinRdf_Query_Ask');
         EasyRdf_TypeMapper::set('sp:Select', 'EasySpinRdf_Query_Select');
         EasyRdf_TypeMapper::set('sp:Describe', 'EasySpinRdf_Query_Describe');
+        EasyRdf_TypeMapper::set('sp:Construct', 'EasySpinRdf_Query_Construct');
     }
 }

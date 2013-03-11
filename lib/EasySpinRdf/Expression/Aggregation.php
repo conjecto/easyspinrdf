@@ -36,14 +36,31 @@
  */
 
 /**
- * Class that represents an SPIN Ask Query
+ * Abstract class that represents an SPIN aggregation expression
  *
  * @package    EasySpinRdf
  * @copyright  Conjecto - Blaise de Carné
  * @license    http://www.opensource.org/licenses/bsd-license.php
  */
-class EasySpinRdf_Query_Ask extends EasySpinRdf_Query
+abstract class EasySpinRdf_Expression_Aggregation extends EasySpinRdf_Expression
 {
-    /** query keyword */
-    const SPARQL_QUERY_KEYWORD = "ASK";
+    /** aggregation keyword */
+    const SPARQL_AGGREGATION_KEYWORD = null;
+
+    /**
+     * Get the SPARQL representation of the aggregation expression
+     */
+    function getSparql()
+    {
+        if(!$this::SPARQL_AGGREGATION_KEYWORD) {
+            throw new EasyRdf_Exception('The SPIN aggregation keyword is not defined');
+        }
+
+        $expression = $this->get('sp:expression');
+        if(!$expression) {
+            throw new EasyRdf_Exception('The SPIN count expression is not complete');
+        }
+
+        return $this::SPARQL_AGGREGATION_KEYWORD . "(" . $this->resourceToSparql($expression) . ")";
+    }
 }

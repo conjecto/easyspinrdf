@@ -36,14 +36,24 @@
  */
 
 /**
- * Class that represents an SPIN Ask Query
+ * Class that represents an SPIN Describe Query
  *
  * @package    EasySpinRdf
  * @copyright  Conjecto - Blaise de Carné
  * @license    http://www.opensource.org/licenses/bsd-license.php
  */
-class EasySpinRdf_Query_Ask extends EasySpinRdf_Query
+class EasySpinRdf_Query_Construct extends EasySpinRdf_Query
 {
     /** query keyword */
-    const SPARQL_QUERY_KEYWORD = "ASK";
+    const SPARQL_QUERY_KEYWORD = "CONSTRUCT";
+
+    /**
+     * Get the templates part
+     * @return string
+     */
+    public function getPattern()
+    {
+        return $this->getStatements('sp:templates');
+    }
+
 }

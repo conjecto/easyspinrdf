@@ -36,14 +36,12 @@
  */
 
 /**
- * Class that represents an SPIN Ask Query
+ * Abstract class that represents an SPIN expression element
  *
  * @package    EasySpinRdf
  * @copyright  Conjecto - Blaise de Carné
  * @license    http://www.opensource.org/licenses/bsd-license.php
  */
-class EasySpinRdf_Query_Ask extends EasySpinRdf_Query
-{
-    /** query keyword */
-    const SPARQL_QUERY_KEYWORD = "ASK";
+abstract class EasySpinRdf_Expression extends EasySpinRdf_Resource {
+
 }

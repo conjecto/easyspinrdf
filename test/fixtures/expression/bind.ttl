@@ -1,0 +1,31 @@
+@prefix rdf:     <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
+@prefix test: <http://www.example.org/test-easyspinrdf#>.
+@prefix spl:    <http://spinrdf.org/spl#>.
+@prefix spin:    <http://spinrdf.org/spin#>.
+@prefix sp:    <http://spinrdf.org/sp#>.
+
+test:bind
+    a sp:Select ;
+    sp:where ([
+        sp:subject spin:_this ;
+        sp:predicate test:price ;
+        sp:object sp:_p ;
+    ] [
+        sp:subject spin:_this ;
+        sp:predicate test:discount ;
+        sp:object sp:_discount ;
+    ] [
+        a sp:Bind ;
+        sp:variable [ sp:varName "price"^^xsd:string ] ;
+        sp:expression [
+            a sp:mul ;
+            sp:arg1 sp:_p ;
+            sp:arg2 [
+                a sp:sub ;
+                sp:arg1 1 ;
+                sp:arg2 sp:_discount
+            ] ;
+        ]
+    ]) .

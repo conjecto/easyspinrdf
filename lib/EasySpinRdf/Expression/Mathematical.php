@@ -36,14 +36,40 @@
  */
 
 /**
- * Class that represents an SPIN Ask Query
+ * Abstract class that represents an SPIN mathematical expression
  *
  * @package    EasySpinRdf
  * @copyright  Conjecto - Blaise de Carné
  * @license    http://www.opensource.org/licenses/bsd-license.php
  */
-class EasySpinRdf_Query_Ask extends EasySpinRdf_Query
+abstract class EasySpinRdf_Expression_Mathematical extends EasySpinRdf_Expression
 {
-    /** query keyword */
-    const SPARQL_QUERY_KEYWORD = "ASK";
+    /** mathematical operator */
+    const SPARQL_MATHEMATICAL_OPERATOR = null;
+
+    /**
+     * Get the SPARQL representation of the mathematical expression
+     */
+    function getSparql()
+    {
+        if(!$this::SPARQL_MATHEMATICAL_OPERATOR) {
+            throw new EasyRdf_Exception('The SPIN mathematical operator is not defined');
+        }
+
+        $arg1 = $this->get('sp:arg1');
+        $arg2 = $this->get('sp:arg2');
+        if(!$arg1 || !$arg2) {
+            throw new EasyRdf_Exception('The SPIN mathematical expression is not complete');
+        }
+
+        $part1 = $this->resourceToSparql($arg1);
+        if(is_a($arg1, 'EasySpinRdf_Expression_Mathematical'))
+            $part1 = "(".$part1.")";
+
+        $part2 = $this->resourceToSparql($arg2);
+        if(is_a($arg2, 'EasySpinRdf_Expression_Mathematical'))
+            $part2 = "(".$part2.")";
+
+        return $part1.$this::SPARQL_MATHEMATICAL_OPERATOR.$part2;
+    }
 }
