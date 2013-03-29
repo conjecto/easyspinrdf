@@ -132,4 +132,13 @@ abstract class EasySpinRdf_Resource extends EasyRdf_Resource
         }
         return $resource;
     }
+
+    /**
+     * Return the graph that this resource belongs to
+     * @return Easy_Rdf_Graph
+     */
+    public function getGraph()
+    {
+        return $this->graph;
+    }
 }
