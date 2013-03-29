@@ -60,6 +60,9 @@ class EasySpinRdf_Expression_Filter extends EasySpinRdf_Expression
 
         $type = $expression->type();
         switch ($type) {
+            case "sp:eq":
+                $operator = "=";
+                break;
             case "sp:lt":
                 $operator = "<";
                 break;
