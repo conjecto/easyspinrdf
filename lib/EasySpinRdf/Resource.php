@@ -135,7 +135,7 @@ abstract class EasySpinRdf_Resource extends EasyRdf_Resource
 
     /**
      * Return the graph that this resource belongs to
-     * @return Easy_Rdf_Graph
+     * @return EasyRdf_Graph
      */
     public function getGraph()
     {
