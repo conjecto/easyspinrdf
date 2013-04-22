@@ -35,26 +35,22 @@
  * @license    http://www.opensource.org/licenses/bsd-license.php
  */
 
-class EasySpinRdf_Utils
+require_once dirname(dirname(dirname(__FILE__))) . DIRECTORY_SEPARATOR . 'TestHelper.php';
+
+class EasySpinRdf_Element_NamedGraphTest extends EasySpinRdf_TestCase
 {
-    public static function setTypeMappers()
+    var $graph;
+
+    public function setUp()
     {
-        EasyRdf_Namespace::set('spl', 'http://spinrdf.org/spl#');
-        EasyRdf_Namespace::set('spin', 'http://spinrdf.org/spin#');
-        EasyRdf_Namespace::set('sp', 'http://spinrdf.org/sp#');
+        $this->graph = new EasyRdf_Graph();
+        $this->graph->parse(readFixture('element/namedgraph.ttl'), 'turtle');
+    }
 
-        EasyRdf_TypeMapper::set('sp:Ask', 'EasySpinRdf_Query_Ask');
-        EasyRdf_TypeMapper::set('sp:Select', 'EasySpinRdf_Query_Select');
-        EasyRdf_TypeMapper::set('sp:Describe', 'EasySpinRdf_Query_Describe');
-        EasyRdf_TypeMapper::set('sp:Construct', 'EasySpinRdf_Query_Construct');
-
-        EasyRdf_TypeMapper::set('sp:Ask', 'EasySpinRdf_Query_Ask');
-        EasyRdf_TypeMapper::set('sp:Select', 'EasySpinRdf_Query_Select');
-        EasyRdf_TypeMapper::set('sp:Describe', 'EasySpinRdf_Query_Describe');
-        EasyRdf_TypeMapper::set('sp:Construct', 'EasySpinRdf_Query_Construct');
-
-        // Elements
-        EasyRdf_TypeMapper::set('sp:SubQuery', 'EasySpinRdf_Element_SubQuery');
-        EasyRdf_TypeMapper::set('sp:NamedGraph', 'EasySpinRdf_Element_NamedGraph');
+    public function testParseQuery()
+    {
+        $query = $this->graph->resource('test:namedgraph');
+        $this->assertClass('EasySpinRdf_Element_NamedGraph', $query);
+        $this->assertStringEquals("GRAPH <http://example.org> { ?this test:firstName ?value }", $query->getSparql());
     }
 }

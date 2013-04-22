@@ -56,49 +56,6 @@ abstract class EasySpinRdf_Query extends EasySpinRdf_Resource
         return $this->get('rdfs:comment');
     }
 
-
-    /**
-     * Get the statement list from a SPIN query property
-     * @param $property
-     * @param $separator
-     * @return bool|string
-     */
-    public function getStatements($property, $separator = ".")
-    {
-        $statements = $this->get($property);
-        if(!$statements) {
-            return false;
-        }
-        $parts = array();
-        foreach($statements as $statement) {
-            $parts[] = $this->getStatement($statement);
-        }
-        return join($separator." ", $parts);
-    }
-
-    /**
-     * Get the statement from a resource
-     * @param $resource
-     * @return string
-     * @throws EasyRdf_Exception
-     */
-    public function getStatement(EasyRdf_Resource $resource)
-    {
-        if(method_exists($resource, 'getSparql')) {
-            return $resource->getSparql();
-        }
-
-        $subject = $resource->get('sp:subject');
-        $object = $resource->get('sp:object');
-        $predicate = $resource->get('sp:predicate');
-
-        if(!$subject || !$predicate || !$object) {
-            throw new EasyRdf_Exception('The SPIN statement is not supported');
-        }
-
-        return $this->resourceToSparql($subject)." ".$this->resourceToSparql($predicate)." ".$this->resourceToSparql($object);
-    }
-
     /**
      * Get the specific pattern part
      * @return string

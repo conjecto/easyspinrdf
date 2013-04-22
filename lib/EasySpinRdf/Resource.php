@@ -46,6 +46,10 @@ EasyRdf_Namespace::set('sp', 'http://spinrdf.org/sp#');
  * EasyRdf type mapping
  */
 
+// Elements
+EasyRdf_TypeMapper::set('sp:SubQuery', 'EasySpinRdf_Element_SubQuery');
+EasyRdf_TypeMapper::set('sp:NamedGraph', 'EasySpinRdf_Element_NamedGraph');
+
 // Expressions
 EasyRdf_TypeMapper::set('sp:Bind', 'EasySpinRdf_Expression_Bind');
 EasyRdf_TypeMapper::set('sp:Filter', 'EasySpinRdf_Expression_Filter');
@@ -131,5 +135,47 @@ abstract class EasySpinRdf_Resource extends EasyRdf_Resource
             $resource = "<".$resource.">";
         }
         return $resource;
+    }
+
+    /**
+     * Get the statement list from a SPIN property
+     * @param $property
+     * @param $separator
+     * @return bool|string
+     */
+    public function getStatements($property, $separator = ".")
+    {
+        $statements = $this->get($property);
+        if(!$statements) {
+            return false;
+        }
+        $parts = array();
+        foreach($statements as $statement) {
+            $parts[] = $this->getStatement($statement);
+        }
+        return join($separator." ", $parts);
+    }
+
+    /**
+     * Get the statement from a resource
+     * @param $resource
+     * @return string
+     * @throws EasyRdf_Exception
+     */
+    public function getStatement(EasyRdf_Resource $resource)
+    {
+        if(method_exists($resource, 'getSparql')) {
+            return $resource->getSparql();
+        }
+
+        $subject = $resource->get('sp:subject');
+        $object = $resource->get('sp:object');
+        $predicate = $resource->get('sp:predicate');
+
+        if(!$subject || !$predicate || !$object) {
+            throw new EasyRdf_Exception('The SPIN statement is not supported');
+        }
+
+        return $this->resourceToSparql($subject)." ".$this->resourceToSparql($predicate)." ".$this->resourceToSparql($object);
     }
 }
