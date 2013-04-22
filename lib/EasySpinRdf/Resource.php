@@ -113,7 +113,8 @@ abstract class EasySpinRdf_Resource extends EasyRdf_Resource
 
         // if the resource is a literal return its value
         if(is_a($resource, 'EasyRdf_Literal')) {
-            return $resource->getValue();
+            $value = $resource->getValue();
+            return is_int($value) ? $value : '"'.$value.'"';
         }
 
         // if the resource has a sp:varName property, use it as a variable
