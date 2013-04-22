@@ -1,4 +1,4 @@
 EasySpinRdf
 ===========
 
-SPIN implementation using the awsome EasyRdf
+SPIN implementation using the awesome EasyRdf
