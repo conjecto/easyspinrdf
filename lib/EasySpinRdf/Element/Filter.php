@@ -42,7 +42,7 @@
  * @copyright  Conjecto - Blaise de Carné
  * @license    http://www.opensource.org/licenses/bsd-license.php
  */
-class EasySpinRdf_Expression_Filter extends EasySpinRdf_Expression
+class EasySpinRdf_Element_Filter extends EasySpinRdf_Element
 {
     /**
      * Get the SPARQL representation of the filter expression
@@ -55,7 +55,7 @@ class EasySpinRdf_Expression_Filter extends EasySpinRdf_Expression
         $arg2 = $expression->get('sp:arg2');
 
         if(!$expression || !$arg1 || !$arg2) {
-            throw new EasyRdf_Exception('The SPIN filter expression is not complete');
+            throw new EasyRdf_Exception('The SPIN Filter is not complete');
         }
 
         $type = $expression->type();

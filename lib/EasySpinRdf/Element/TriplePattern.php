@@ -35,22 +35,26 @@
  * @license    http://www.opensource.org/licenses/bsd-license.php
  */
 
-require_once dirname(dirname(dirname(__FILE__))) . DIRECTORY_SEPARATOR . 'TestHelper.php';
-
-class EasySpinRdf_Element_NamedGraphTest extends EasySpinRdf_TestCase
+/**
+ * Class that represents an SPIN Union element
+ *
+ * @package    EasySpinRdf
+ * @copyright  Conjecto - Serwan Cravic
+ * @license    http://www.opensource.org/licenses/bsd-license.php
+ */
+class EasySpinRdf_Element_TriplePattern extends EasySpinRdf_Element
 {
-    var $graph;
-
-    public function setUp()
+    /**
+     * Get the SPARQL representation of the triple pattern
+     */
+    public function getSparql()
     {
-        $this->graph = new EasyRdf_Graph();
-        $this->graph->parse(readFixture('element/named_graph.ttl'), 'turtle');
-    }
-
-    public function testParseQuery()
-    {
-        $query = $this->graph->resource('test:named_graph');
-        $this->assertClass('EasySpinRdf_Element_NamedGraph', $query);
-        $this->assertStringEquals("GRAPH <http://example.org> { ?this test:firstName ?value }", $query->getSparql());
+        $subject = $this->get('sp:subject');
+        $object = $this->get('sp:object');
+        $predicate = $this->get('sp:predicate');
+        if(!$subject || !$predicate || !$object) {
+            throw new EasyRdf_Exception('The SPIN TriplePattern is not complete');
+        }
+        return $this->resourceToSparql($subject)." ".$this->resourceToSparql($predicate)." ".$this->resourceToSparql($object);
     }
 }

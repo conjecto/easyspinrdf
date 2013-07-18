@@ -6,7 +6,7 @@
 @prefix spin:    <http://spinrdf.org/spin#>.
 @prefix sp:    <http://spinrdf.org/sp#>.
 
-test:namedgraph
+test:named_graph
     a sp:NamedGraph ;
     sp:graphNameNode <http://example.org> ;
     sp:elements ([

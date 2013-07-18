@@ -43,15 +43,19 @@ class EasySpinRdf_Utils
         EasyRdf_Namespace::set('spin', 'http://spinrdf.org/spin#');
         EasyRdf_Namespace::set('sp', 'http://spinrdf.org/sp#');
 
+        // Query
         EasyRdf_TypeMapper::set('sp:Ask', 'EasySpinRdf_Query_Ask');
         EasyRdf_TypeMapper::set('sp:Select', 'EasySpinRdf_Query_Select');
         EasyRdf_TypeMapper::set('sp:Describe', 'EasySpinRdf_Query_Describe');
         EasyRdf_TypeMapper::set('sp:Construct', 'EasySpinRdf_Query_Construct');
 
         // Elements
+        EasyRdf_TypeMapper::set('sp:TriplePattern', 'EasySpinRdf_Element_TriplePattern');
         EasyRdf_TypeMapper::set('sp:SubQuery', 'EasySpinRdf_Element_SubQuery');
         EasyRdf_TypeMapper::set('sp:NamedGraph', 'EasySpinRdf_Element_NamedGraph');
         EasyRdf_TypeMapper::set('sp:Optional', 'EasySpinRdf_Element_Optional');
         EasyRdf_TypeMapper::set('sp:Union', 'EasySpinRdf_Element_Union');
+        EasyRdf_TypeMapper::set('sp:Bind', 'EasySpinRdf_Element_Bind');
+        EasyRdf_TypeMapper::set('sp:Filter', 'EasySpinRdf_Element_Filter');
     }
 }

@@ -35,20 +35,21 @@
  * @license    http://www.opensource.org/licenses/bsd-license.php
  */
 
-require_once dirname(dirname(dirname(__FILE__))).DIRECTORY_SEPARATOR.'TestHelper.php';
+require_once dirname(dirname(dirname(__FILE__))) . DIRECTORY_SEPARATOR . 'TestHelper.php';
 
-class EasySpinRdf_Expression_FilterTest extends EasySpinRdf_TestCase
+class EasySpinRdf_Element_FilterTest extends EasySpinRdf_TestCase
 {
     public function setUp()
     {
         $this->graph = new EasyRdf_Graph();
-        $this->graph->parse(readFixture('expression/filter.ttl'), 'turtle');
+        $this->graph->parse(readFixture('element/filter.ttl'), 'turtle');
     }
 
     public function testFilter()
     {
         $query = $this->graph->resource('test:filter');
-        $this->assertClass('EasySpinRdf_Query_Ask', $query);
+        $where = $this->graph->resource('test:filter')->get('sp:where');
+        $this->assertClass('EasySpinRdf_Element_Filter', $where[2]);
         $this->assertStringEquals("ASK WHERE { ?this test:age ?genid3. FILTER(?genid3 >= 18) }", $query->getSparql());
     }
 }

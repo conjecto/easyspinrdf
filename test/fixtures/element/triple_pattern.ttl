@@ -1,0 +1,18 @@
+@prefix rdf:     <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
+@prefix test: <http://www.example.org/test-easyspinrdf#>.
+@prefix spl:    <http://spinrdf.org/spl#>.
+@prefix spin:    <http://spinrdf.org/spin#>.
+@prefix sp:    <http://spinrdf.org/sp#>.
+
+test:triple_pattern
+    a   sp:TriplePattern ;
+    sp:subject spin:_this ;
+    sp:predicate test:age ;
+    sp:object 42 .
+
+test:untyped_triple_pattern
+    sp:subject spin:_this ;
+    sp:predicate test:age ;
+    sp:object 42 .

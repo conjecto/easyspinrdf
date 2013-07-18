@@ -35,20 +35,27 @@
  * @license    http://www.opensource.org/licenses/bsd-license.php
  */
 
-require_once dirname(dirname(dirname(__FILE__))).DIRECTORY_SEPARATOR.'TestHelper.php';
-
-class EasySpinRdf_Expression_BindTest extends EasySpinRdf_TestCase
+/**
+ * Class that represents an SPIN bind expression
+ *
+ * @package    EasySpinRdf
+ * @copyright  Conjecto - Blaise de Carné
+ * @license    http://www.opensource.org/licenses/bsd-license.php
+ */
+class EasySpinRdf_Element_Bind extends EasySpinRdf_Element
 {
-    public function setUp()
+    /**
+     * Get the SPARQL representation of the bind expression
+     */
+    function getSparql()
     {
-        $this->graph = new EasyRdf_Graph();
-        $this->graph->parse(readFixture('expression/bind.ttl'), 'turtle');
-    }
+        $variable = $this->get('sp:variable');
+        $expression = $this->get('sp:expression');
 
-    public function testParseQuery()
-    {
-        $query = $this->graph->resource('test:bind');
-        $this->assertClass('EasySpinRdf_Query_Select', $query);
-        $this->assertStringEquals("SELECT * WHERE { ?this test:price ?p. ?this test:discount ?discount. BIND(?p*(1-?discount) AS ?price) }", $query->getSparql());
+        if(!$variable || !$expression) {
+            throw new EasyRdf_Exception('The SPIN Bind is not complete');
+        }
+
+        return "BIND(" . $this->resourceToSparql($expression). " AS ". $this->resourceToSparql($variable) .")";
     }
 }
