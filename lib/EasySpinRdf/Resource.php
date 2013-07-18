@@ -49,11 +49,13 @@ EasyRdf_Namespace::set('sp', 'http://spinrdf.org/sp#');
 // Elements
 EasyRdf_TypeMapper::set('sp:SubQuery', 'EasySpinRdf_Element_SubQuery');
 EasyRdf_TypeMapper::set('sp:NamedGraph', 'EasySpinRdf_Element_NamedGraph');
+EasyRdf_TypeMapper::set('sp:Optional', 'EasySpinRdf_Element_Optional');
+EasyRdf_TypeMapper::set('sp:Union', 'EasySpinRdf_Element_Union');
 
 // Expressions
 EasyRdf_TypeMapper::set('sp:Bind', 'EasySpinRdf_Expression_Bind');
 EasyRdf_TypeMapper::set('sp:Filter', 'EasySpinRdf_Expression_Filter');
-EasyRdf_TypeMapper::set('sp:SubQuery', 'EasySpinRdf_Element_SubQuery');
+//EasyRdf_TypeMapper::set('sp:SubQuery', 'EasySpinRdf_Element_SubQuery');
 
 // Aggregation
 EasyRdf_TypeMapper::set('sp:Avg', 'EasySpinRdf_Expression_Aggregation_Avg');
