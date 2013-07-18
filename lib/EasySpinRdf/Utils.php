@@ -51,5 +51,7 @@ class EasySpinRdf_Utils
         // Elements
         EasyRdf_TypeMapper::set('sp:SubQuery', 'EasySpinRdf_Element_SubQuery');
         EasyRdf_TypeMapper::set('sp:NamedGraph', 'EasySpinRdf_Element_NamedGraph');
+        EasyRdf_TypeMapper::set('sp:Optional', 'EasySpinRdf_Element_Optional');
+        EasyRdf_TypeMapper::set('sp:Union', 'EasySpinRdf_Element_Union');
     }
 }

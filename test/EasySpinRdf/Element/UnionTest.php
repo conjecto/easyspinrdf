@@ -35,32 +35,22 @@
  * @license    http://www.opensource.org/licenses/bsd-license.php
  */
 
-/**
- * Class that represents an SPIN Union element
- *
- * @package    EasySpinRdf
- * @copyright  Conjecto - Serwan Cravic
- * @license    http://www.opensource.org/licenses/bsd-license.php
- */
-class EasySpinRdf_Element_Union extends EasySpinRdf_Element
+require_once dirname(dirname(dirname(__FILE__))) . DIRECTORY_SEPARATOR . 'TestHelper.php';
+
+class EasySpinRdf_Element_UnionTest extends EasySpinRdf_TestCase
 {
-    /**
-     * Get the SPARQL representation of the union element
-     */
-    public function getSparql()
+    var $graph;
+
+    public function setUp()
     {
-    	$parts = array();
-        $elements = $this->get('sp:elements');
-        if(!$elements) {
-            return "";
-        }
-        foreach($elements as $statements) {
-            $statementsParts=array();
-            foreach($statements as $statement) {
-                $statementsParts[] = $this->getStatement($statement);
-            }
-            $parts[] = "{ " .join(". ", $statementsParts)." }";
-        }
-        return join(" UNION ", $parts);
+        $this->graph = new EasyRdf_Graph();
+        $this->graph->parse(readFixture('element/union.ttl'), 'turtle');
+    }
+
+    public function testParseQuery()
+    {
+        $query = $this->graph->resource('test:union');
+        $this->assertClass('EasySpinRdf_Element_Union', $query);
+        $this->assertStringEquals("{ ?this test:age 42 } UNION { ?this test:age 43 }", $query->getSparql());
     }
 }
