@@ -53,7 +53,7 @@ class EasySpinRdf_Query_Construct extends EasySpinRdf_Query
      */
     public function getPattern()
     {
-        return $this->getStatements('sp:templates');
+        return '{ ' . $this->getStatements('sp:templates') . ' }';
     }
 
 }
