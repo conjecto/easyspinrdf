@@ -29,7 +29,7 @@ Get the corresponding SPARQL Query with EasyRdf and EasySpinRdf :
     EasySpinRdf_Utils::setTypeMappers();
     $graph = new EasyRdf_Graph("http://conjecto.com/queries.ttl");
     $graph->load();
-    echo "SPARQL Query : " . $graph->get("my:query")->getSparql();
+    echo $graph->get("my:query")->getSparql();
 
 Result :
 
