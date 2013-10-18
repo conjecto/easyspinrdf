@@ -1,5 +1,4 @@
 <?php
-
 /**
  * EasySpinRdf
  *
@@ -36,14 +35,54 @@
  */
 
 /**
- * Class that represents an SPIN multiplication expression
+ * Class that represents an SPIN ModPath expression
  *
  * @package    EasySpinRdf
  * @copyright  Conjecto - Blaise de Carné
  * @license    http://www.opensource.org/licenses/bsd-license.php
  */
-class EasySpinRdf_Expression_Mathematical_Add extends EasySpinRdf_Expression_Mathematical
+class EasySpinRdf_Expression_Path_ModPath extends EasySpinRdf_Expression_Path
 {
-    /** mathematical operator */
-    const SPARQL_MATHEMATICAL_OPERATOR = "+";
+    /**
+     * Get the SPARQL representation of the path expression
+     */
+    function getSparql()
+    {
+        $subPath = $this->get('sp:subPath');
+        $modMin = $this->getLiteral('sp:modMin');
+        $modMax = $this->getLiteral('sp:modMax');
+        if(!$subPath) {
+            throw new EasyRdf_Exception('The SPIN ModPath is not complete');
+        }
+
+        $min = !empty($modMin) ? $modMin->getValue() : 0;
+        $max = !empty($modMax) ? $modMax->getValue() : 0;
+
+        if($min && $max) {
+            if($min == $max) {
+                // min x, max x
+                $modifier = '{'.$min.'}';
+            } else {
+                // min x, max y
+                $modifier = '{'.$min.','.$max.'}';
+            }
+        } elseif($min == 1) {
+            // min 1, max 0
+            $modifier = '+';
+        } elseif($max == 1) {
+            // min 0, max 1
+            $modifier = '?';
+        } elseif($min && !$max) {
+            // min x
+            $modifier = '{'.$min.',}';
+        } elseif(!$min && $max) {
+            // max x
+            $modifier = '{,'.$max.'}';
+        } else {
+            // min 0, max 0
+            $modifier = '*';
+        }
+
+        return $this->resourceToSparql($subPath).$modifier;
+    }
 }

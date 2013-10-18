@@ -44,6 +44,6 @@
  */
 class EasySpinRdf_Expression_Mathematical_Divide extends EasySpinRdf_Expression_Mathematical
 {
-    /** aggregation keyword */
+    /** mathematical operator */
     const SPARQL_MATHEMATICAL_OPERATOR = "/";
 }

@@ -36,14 +36,13 @@
  */
 
 /**
- * Class that represents an SPIN multiplication expression
+ * Abstract class that represents an SPIN path expression
  *
  * @package    EasySpinRdf
  * @copyright  Conjecto - Blaise de Carné
  * @license    http://www.opensource.org/licenses/bsd-license.php
  */
-class EasySpinRdf_Expression_Mathematical_Add extends EasySpinRdf_Expression_Mathematical
+abstract class EasySpinRdf_Expression_Path extends EasySpinRdf_Expression
 {
-    /** mathematical operator */
-    const SPARQL_MATHEMATICAL_OPERATOR = "+";
+
 }

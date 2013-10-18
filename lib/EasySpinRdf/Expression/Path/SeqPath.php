@@ -1,5 +1,4 @@
 <?php
-
 /**
  * EasySpinRdf
  *
@@ -36,14 +35,24 @@
  */
 
 /**
- * Class that represents an SPIN multiplication expression
+ * Class that represents an SPIN SeqPath expression
  *
  * @package    EasySpinRdf
  * @copyright  Conjecto - Blaise de Carné
  * @license    http://www.opensource.org/licenses/bsd-license.php
  */
-class EasySpinRdf_Expression_Mathematical_Add extends EasySpinRdf_Expression_Mathematical
+class EasySpinRdf_Expression_Path_SeqPath extends EasySpinRdf_Expression_Path
 {
-    /** mathematical operator */
-    const SPARQL_MATHEMATICAL_OPERATOR = "+";
+    /**
+     * Get the SPARQL representation of the path expression
+     */
+    function getSparql()
+    {
+        $path1 = $this->get('sp:path1');
+        $path2 = $this->get('sp:path2');
+        if(!$path1 || !$path2) {
+            throw new EasyRdf_Exception('The SPIN SeqPath is not complete');
+        }
+        return $this->resourceToSparql($path1)."/".$this->resourceToSparql($path2);
+    }
 }

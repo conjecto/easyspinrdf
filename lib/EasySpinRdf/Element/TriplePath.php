@@ -36,14 +36,26 @@
  */
 
 /**
- * Class that represents an SPIN multiplication expression
+ * Class that represents an SPIN TriplePath element
  *
  * @package    EasySpinRdf
  * @copyright  Conjecto - Blaise de Carné
  * @license    http://www.opensource.org/licenses/bsd-license.php
  */
-class EasySpinRdf_Expression_Mathematical_Add extends EasySpinRdf_Expression_Mathematical
+class EasySpinRdf_Element_TriplePath extends EasySpinRdf_Element
 {
-    /** mathematical operator */
-    const SPARQL_MATHEMATICAL_OPERATOR = "+";
+    /**
+     * Get the SPARQL representation of the triple path
+     */
+    public function getSparql()
+    {
+        $subject = $this->get('sp:subject');
+        $object = $this->get('sp:object');
+        $path = $this->get('sp:path');
+        if(!$subject || !$path || !$object) {
+            throw new EasyRdf_Exception('The SPIN TriplePath is not complete');
+        }
+
+        return $this->resourceToSparql($subject)." ".$this->resourceToSparql($path)." ".$this->resourceToSparql($object);
+    }
 }

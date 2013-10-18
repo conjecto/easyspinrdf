@@ -54,6 +54,7 @@ EasyRdf_TypeMapper::set('sp:Optional', 'EasySpinRdf_Element_Optional');
 EasyRdf_TypeMapper::set('sp:Union', 'EasySpinRdf_Element_Union');
 EasyRdf_TypeMapper::set('sp:Bind', 'EasySpinRdf_Element_Bind');
 EasyRdf_TypeMapper::set('sp:Filter', 'EasySpinRdf_Element_Filter');
+EasyRdf_TypeMapper::set('sp:TriplePath', 'EasySpinRdf_Element_TriplePath');
 
 // Aggregation
 EasyRdf_TypeMapper::set('sp:Avg', 'EasySpinRdf_Expression_Aggregation_Avg');
@@ -70,6 +71,11 @@ EasyRdf_TypeMapper::set('sp:add', 'EasySpinRdf_Expression_Mathematical_Add');
 EasyRdf_TypeMapper::set('sp:sub', 'EasySpinRdf_Expression_Mathematical_Substract');
 EasyRdf_TypeMapper::set('sp:divide', 'EasySpinRdf_Expression_Mathematical_Divide');
 
+// Path
+EasyRdf_TypeMapper::set('sp:SeqPath', 'EasySpinRdf_Expression_Path_SeqPath');
+EasyRdf_TypeMapper::set('sp:AltPath', 'EasySpinRdf_Expression_Path_AltPath');
+EasyRdf_TypeMapper::set('sp:ModPath', 'EasySpinRdf_Expression_Path_ModPath');
+EasyRdf_TypeMapper::set('sp:ReversePath', 'EasySpinRdf_Expression_Path_ReversePath');
 
 
 /**

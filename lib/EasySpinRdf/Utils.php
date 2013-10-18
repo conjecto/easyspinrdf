@@ -57,5 +57,6 @@ class EasySpinRdf_Utils
         EasyRdf_TypeMapper::set('sp:Union', 'EasySpinRdf_Element_Union');
         EasyRdf_TypeMapper::set('sp:Bind', 'EasySpinRdf_Element_Bind');
         EasyRdf_TypeMapper::set('sp:Filter', 'EasySpinRdf_Element_Filter');
+        EasyRdf_TypeMapper::set('sp:TriplePath', 'EasySpinRdf_Element_TriplePath');
     }
 }

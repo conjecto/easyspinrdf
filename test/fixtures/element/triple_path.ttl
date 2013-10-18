@@ -1,0 +1,100 @@
+@prefix rdf:     <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
+@prefix test: <http://www.example.org/test-easyspinrdf#>.
+@prefix spl:    <http://spinrdf.org/spl#>.
+@prefix spin:    <http://spinrdf.org/spin#>.
+@prefix sp:    <http://spinrdf.org/sp#>.
+@prefix foaf:    <http://xmlns.com/foaf/0.1/>.
+
+test:seqPath
+    a sp:TriplePath ;
+    sp:subject spin:_this ;
+    sp:path [ a sp:SeqPath ;
+        sp:path1 foaf:knows ;
+        sp:path2 foaf:name
+    ] ;
+    sp:object sp:_name .
+
+test:altPath
+    a sp:TriplePath ;
+    sp:subject spin:_this ;
+    sp:path [ a sp:AltPath ;
+        sp:path1 foaf:knows ;
+        sp:path2 foaf:name
+    ] ;
+    sp:object sp:_name .
+
+test:modPath1
+    a sp:TriplePath ;
+    sp:subject spin:_this ;
+    sp:path [ a sp:ModPath ;
+        sp:subPath foaf:knows
+    ] ;
+    sp:object spin:_person .
+
+test:modPath2
+    a sp:TriplePath ;
+    sp:subject spin:_this ;
+    sp:path [ a sp:ModPath ;
+        sp:subPath foaf:knows ;
+        sp:modMax 1
+    ] ;
+    sp:object spin:_person .
+
+test:modPath3
+    a sp:TriplePath ;
+    sp:subject spin:_this ;
+    sp:path [ a sp:ModPath ;
+        sp:subPath foaf:knows ;
+        sp:modMin 1
+    ] ;
+    sp:object spin:_person .
+
+test:modPath4
+    a sp:TriplePath ;
+    sp:subject spin:_this ;
+    sp:path [ a sp:ModPath ;
+        sp:subPath foaf:knows ;
+        sp:modMin 3
+    ] ;
+    sp:object spin:_person .
+
+test:modPath5
+    a sp:TriplePath ;
+    sp:subject spin:_this ;
+    sp:path [ a sp:ModPath ;
+        sp:subPath foaf:knows ;
+        sp:modMax 3
+    ] ;
+    sp:object spin:_person .
+
+test:modPath6
+    a sp:TriplePath ;
+    sp:subject spin:_this ;
+    sp:path [ a sp:ModPath ;
+        sp:subPath foaf:knows ;
+        sp:modMin 2 ;
+        sp:modMax 8
+    ] ;
+    sp:object spin:_person .
+
+test:reversePath
+    a sp:TriplePath ;
+    sp:subject spin:_this ;
+    sp:path [ a sp:ReversePath ;
+        sp:subPath foaf:knows
+    ] ;
+    sp:object spin:_person .
+
+test:complexPath
+    a sp:TriplePath ;
+    sp:subject spin:_this ;
+    sp:path [ a sp:SeqPath ;
+        sp:path1 [ a sp:ModPath ;
+            sp:subPath foaf:knows ;
+            sp:modMin 1
+        ] ;
+        sp:path2 foaf:name
+    ] ;
+    sp:object spin:_name .
