@@ -21,6 +21,9 @@
         "phpunit/PHPUnit": ">=3.5.15"
     },
     "autoload": {
-        "psr-0": { "EasySpinRdf_": "lib/" }
+        "psr-0": {
+            "EasySpinRdf_": "lib/",
+            "hafriedlander": "vendor/hafriedlander/php-peg/lib/"
+        }
     }
 }
