@@ -35,8 +35,20 @@
  * @license    http://www.opensource.org/licenses/bsd-license.php
  */
 
+/**
+ * Utils class
+ *
+ * @package    EasySpinRdf
+ * @copyright  Conjecto - Blaise de Carné
+ * @license    http://www.opensource.org/licenses/bsd-license.php
+ */
 class EasySpinRdf_Utils
 {
+    /**
+     * Set all required type mappers
+     *
+     * @return void
+     */
     public static function setTypeMappers()
     {
         EasyRdf_Namespace::set('spl', 'http://spinrdf.org/spl#');
@@ -58,5 +70,17 @@ class EasySpinRdf_Utils
         EasyRdf_TypeMapper::set('sp:Bind', 'EasySpinRdf_Element_Bind');
         EasyRdf_TypeMapper::set('sp:Filter', 'EasySpinRdf_Element_Filter');
         EasyRdf_TypeMapper::set('sp:TriplePath', 'EasySpinRdf_Element_TriplePath');
+    }
+
+    /**
+     * Parse a SPARQL query to get the equivalent EasySpinRdf_Query element
+     *
+     * @param string $sparql
+     * @return EasySpinRdf_Query
+     */
+    public static function parse($sparql)
+    {
+        $parser = new EasySpinRdf_Parser($sparql);
+        return $parser->parse();
     }
 }
