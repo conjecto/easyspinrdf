@@ -23,19 +23,19 @@
 
     <testsuites>
         <testsuite name="EasySpinRdf Library">
-            <directory suffix="Test.php">../tests/EasySpinRdf/</directory>
+            <directory suffix="Test.php">tests/EasySpinRdf/</directory>
         </testsuite>
     </testsuites>
 
     <!-- Files to be included in the coverage report -->
     <filter>
         <whitelist addUncoveredFilesFromWhitelist="true">
-            <directory suffix=".php">../lib/EasySpinRdf/</directory>
+            <directory suffix=".php">lib/EasySpinRdf/</directory>
         </whitelist>
     </filter>
 
     <logging>
         <log type="text" target="php://stdout" />
-        <log type="junit" target="../reports/test-results.xml" />
+        <log type="junit" target="reports/test-results.xml" />
     </logging>
 </phpunit>
