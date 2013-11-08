@@ -5,9 +5,11 @@ EasySpinRdf
 
 SPIN SPARQL Syntax is a machine-readable notation of SPARQL in RDF format. This EasyRdf extension convert SPIN RDF data structures into valid SPARQL query strings.
 
+[![Build Status](https://travis-ci.org/conjecto/easyspinrdf.png?branch=master)](https://travis-ci.org/conjecto/easyspinrdf)
+
 ### Example ###
 
-Take this RDF graph in ttl : 
+Take this RDF graph in ttl :
 
     my:query
       a sp:Ask ;
@@ -23,7 +25,7 @@ Take this RDF graph in ttl :
             ]
         ] )
     ]
-    
+
 Get the corresponding SPARQL Query with EasyRdf and EasySpinRdf :
 
     EasySpinRdf_Utils::setTypeMappers();
