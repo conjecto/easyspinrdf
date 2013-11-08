@@ -25,5 +25,11 @@
             "EasySpinRdf_": "lib/",
             "hafriedlander": "vendor/hafriedlander/php-peg/lib/"
         }
+    },
+    "scripts": {
+        "post-package-install": [
+            "php vendor/hafriedlander/php-peg/cli.php grammar/SPARQL11.peg.inc lib/EasySpinRdf/Parser.php"
+        ]
     }
 }
+

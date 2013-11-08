@@ -2,3 +2,4 @@
 /vendor/
 composer.lock
 test-results.xml
+/lib/EasySpinRdf/Parser.php

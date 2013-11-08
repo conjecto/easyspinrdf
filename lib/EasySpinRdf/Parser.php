@@ -169,8 +169,13 @@ class EasySpinRdf_Parser extends Parser\Basic {
     public function SelectQuery_SelectClause(&$result, $sub)
     {
         if(isset($sub['modifier'])) {
-            if($sub['modifier']['text'] == "DISTINCT") {
-                $result['query']->add('sp:distinct', new EasyRdf_Literal_Boolean(true));
+            switch($sub['modifier']['text']) {
+                case "DISTINCT":
+                    $result['query']->add('sp:distinct', new EasyRdf_Literal_Boolean(true));
+                    break;
+                case "REDUCED":
+                    $result['query']->add('sp:reduced', new EasyRdf_Literal_Boolean(true));
+                    break;
             }
         }
     }
