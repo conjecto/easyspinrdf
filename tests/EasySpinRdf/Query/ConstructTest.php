@@ -35,20 +35,16 @@
  * @license    http://www.opensource.org/licenses/bsd-license.php
  */
 
-require_once dirname(dirname(dirname(__FILE__))) . DIRECTORY_SEPARATOR . 'TestHelper.php';
-
-class EasySpinRdf_Element_BindTest extends EasySpinRdf_TestCase
+class EasySpinRdf_Query_ConstructTest extends EasySpinRdf_TestCase
 {
-    public function setUp()
-    {
-        $this->graph = new EasyRdf_Graph();
-        $this->graph->parse(readFixture('element/bind.ttl'), 'turtle');
-    }
-
     public function testParseQuery()
     {
-        $query = $this->graph->resource('test:bind');
-        $this->assertClass('EasySpinRdf_Query_Select', $query);
-        $this->assertStringEquals("SELECT * WHERE { ?this test:price ?p. ?this test:discount ?discount. BIND(?p*(1-?discount) AS ?price) }", $query->getSparql());
+        $graph = new EasyRdf_Graph();
+        $graph->parse(readFixture('query/construct.ttl'), 'turtle');
+
+        $query = $graph->resource('test:construct');
+        $this->assertClass('EasySpinRdf_Query_Construct', $query);
+
+        $this->assertStringEquals("CONSTRUCT { ?this test:grandParent ?grandParent } WHERE { ?parent test:child ?this. ?grandParent test:child ?parent }", $query->getSparql());
     }
 }

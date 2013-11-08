@@ -35,26 +35,20 @@
  * @license    http://www.opensource.org/licenses/bsd-license.php
  */
 
-require_once dirname(dirname(dirname(__FILE__))) . DIRECTORY_SEPARATOR . 'TestHelper.php';
-
-class EasySpinRdf_Element_TriplePatternTest extends EasySpinRdf_TestCase
+class EasySpinRdf_Element_NamedGraphTest extends EasySpinRdf_TestCase
 {
     var $graph;
 
     public function setUp()
     {
         $this->graph = new EasyRdf_Graph();
-        $this->graph->parse(readFixture('element/triple_pattern.ttl'), 'turtle');
+        $this->graph->parse(readFixture('element/named_graph.ttl'), 'turtle');
     }
 
     public function testParseQuery()
     {
-        $query = $this->graph->resource('test:triple_pattern');
-        $this->assertClass('EasySpinRdf_Element_TriplePattern', $query);
-        $this->assertStringEquals("?this test:age 42", $query->getSparql());
-
-//        $query = $this->graph->resource('test:untyped_triple_pattern');
-//        $this->assertClass('EasySpinRdf_Element_TriplePattern', $query);
-//        $this->assertStringEquals("?this test:age 42", $query->getSparql());
+        $query = $this->graph->resource('test:named_graph');
+        $this->assertClass('EasySpinRdf_Element_NamedGraph', $query);
+        $this->assertStringEquals("GRAPH <http://example.org> { ?this test:firstName ?value }", $query->getSparql());
     }
 }

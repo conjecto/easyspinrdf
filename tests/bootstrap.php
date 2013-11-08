@@ -36,16 +36,6 @@
  */
 
 /*
- * Include PHPUnit dependencies
- */
-require_once 'PHPUnit/Framework/IncompleteTestError.php';
-require_once 'PHPUnit/Framework/TestCase.php';
-require_once 'PHPUnit/Framework/TestSuite.php';
-require_once 'PHPUnit/Runner/Version.php';
-require_once 'PHPUnit/TextUI/TestRunner.php';
-require_once 'PHPUnit/Util/Filter.php';
-
-/*
  * Set error reporting to the level to be stricter.
  */
 error_reporting(E_ALL | E_STRICT);
@@ -61,7 +51,7 @@ if (version_compare(PHPUnit_Runner_Version::id(), '3.5.15', '<')) {
 // Set time zone to UTC for running tests
 date_default_timezone_set('UTC');
 
-require_once dirname(dirname(__FILE__)).'/vendor/autoload.php';
+require_once dirname(__FILE__).'/../vendor/autoload.php';
 require_once 'EasySpinRdf/TestCase.php';
 EasyRdf_Namespace::set('test', 'http://www.example.org/test-easyspinrdf#');
 EasySpinRdf_Utils::setTypeMappers();

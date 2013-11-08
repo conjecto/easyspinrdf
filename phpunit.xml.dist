@@ -10,7 +10,8 @@
         stopOnFailure="false"
         strict="true"
         syntaxCheck="false"
-        verbose="false">
+        verbose="false"
+        bootstrap="tests/bootstrap.php">
 
     <php>
         <!--
@@ -22,7 +23,7 @@
 
     <testsuites>
         <testsuite name="EasySpinRdf Library">
-            <directory suffix="Test.php">../test/EasySpinRdf/</directory>
+            <directory suffix="Test.php">../tests/EasySpinRdf/</directory>
         </testsuite>
     </testsuites>
 

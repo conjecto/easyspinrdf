@@ -35,18 +35,24 @@
  * @license    http://www.opensource.org/licenses/bsd-license.php
  */
 
-require_once dirname(dirname(dirname(__FILE__))).DIRECTORY_SEPARATOR.'TestHelper.php';
-
-class EasySpinRdf_Query_ConstructTest extends EasySpinRdf_TestCase
+class EasySpinRdf_Element_TriplePatternTest extends EasySpinRdf_TestCase
 {
+    var $graph;
+
+    public function setUp()
+    {
+        $this->graph = new EasyRdf_Graph();
+        $this->graph->parse(readFixture('element/triple_pattern.ttl'), 'turtle');
+    }
+
     public function testParseQuery()
     {
-        $graph = new EasyRdf_Graph();
-        $graph->parse(readFixture('query/construct.ttl'), 'turtle');
+        $query = $this->graph->resource('test:triple_pattern');
+        $this->assertClass('EasySpinRdf_Element_TriplePattern', $query);
+        $this->assertStringEquals("?this test:age 42", $query->getSparql());
 
-        $query = $graph->resource('test:construct');
-        $this->assertClass('EasySpinRdf_Query_Construct', $query);
-
-        $this->assertStringEquals("CONSTRUCT ?this test:grandParent ?grandParent WHERE { ?parent test:child ?this. ?grandParent test:child ?parent }", $query->getSparql());
+//        $query = $this->graph->resource('test:untyped_triple_pattern');
+//        $this->assertClass('EasySpinRdf_Element_TriplePattern', $query);
+//        $this->assertStringEquals("?this test:age 42", $query->getSparql());
     }
 }

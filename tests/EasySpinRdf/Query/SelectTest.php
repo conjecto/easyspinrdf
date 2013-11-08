@@ -35,8 +35,6 @@
  * @license    http://www.opensource.org/licenses/bsd-license.php
  */
 
-require_once dirname(dirname(dirname(__FILE__))).DIRECTORY_SEPARATOR.'TestHelper.php';
-
 class EasySpinRdf_Query_SelectTest extends EasySpinRdf_TestCase
 {
     private $graph;

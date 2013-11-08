@@ -35,18 +35,20 @@
  * @license    http://www.opensource.org/licenses/bsd-license.php
  */
 
-require_once dirname(dirname(dirname(__FILE__))).DIRECTORY_SEPARATOR.'TestHelper.php';
-
-class EasySpinRdf_Query_DescribeTest extends EasySpinRdf_TestCase
+class EasySpinRdf_Element_UnionTest extends EasySpinRdf_TestCase
 {
+    var $graph;
+
+    public function setUp()
+    {
+        $this->graph = new EasyRdf_Graph();
+        $this->graph->parse(readFixture('element/union.ttl'), 'turtle');
+    }
+
     public function testParseQuery()
     {
-        $graph = new EasyRdf_Graph();
-        $graph->parse(readFixture('query/describe.ttl'), 'turtle');
-
-        $query = $graph->resource('test:describe');
-        $this->assertClass('EasySpinRdf_Query_Describe', $query);
-
-        $this->assertStringEquals("DESCRIBE ?value WHERE { ?this test:uncle ?value }", $query->getSparql());
+        $query = $this->graph->resource('test:union');
+        $this->assertClass('EasySpinRdf_Element_Union', $query);
+        $this->assertStringEquals("{ ?this test:age 42 } UNION { ?this test:age 43 }", $query->getSparql());
     }
 }
