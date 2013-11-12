@@ -50,7 +50,7 @@ class EasySpinRdf_Parser extends Parser\Basic {
 
     QueryUnit: Query
 
-    _: WS*
+   # _: WS*
 
     Query: Prologue ( SelectQuery | ConstructQuery | DescribeQuery | AskQuery ) ValuesClause
 
@@ -117,6 +117,10 @@ class EasySpinRdf_Parser extends Parser\Basic {
     Drop:    'DROP' 'SILENT'? GraphRefAll
 
     Create:    'CREATE' 'SILENT'? GraphRef
+
+    */
+
+    /*!* SPARQL11
 
     Add:    'ADD' 'SILENT'? GraphOrDefault 'TO' GraphOrDefault
 
@@ -210,6 +214,10 @@ class EasySpinRdf_Parser extends Parser\Basic {
 
     Object:    GraphNode
 
+    */
+
+    /*!* SPARQL11
+
     TriplesSameSubjectPath:    VarOrTerm PropertyListPathNotEmpty |  TriplesNodePath PropertyListPath
 
     PropertyListPath:    PropertyListPathNotEmpty?
@@ -242,7 +250,7 @@ class EasySpinRdf_Parser extends Parser\Basic {
 
     PathOneInPropertySet:    iri | 'a' | '^' ( iri | 'a' )
 
-    Integer:    INTEGER
+    Integer:    INTEGER_T
 
     TriplesNode:    Collection |  BlankNodePropertyList
 
@@ -276,7 +284,7 @@ class EasySpinRdf_Parser extends Parser\Basic {
 
     ValueLogical: RelationalExpression
 
-    RelationalExpression: NumericExpression _ ( '=' _ NumericExpression | '!=' _ NumericExpression | '<' _ NumericExpression | '>' _ NumericExpression | '<=' _ NumericExpression | '>=' _ NumericExpression | 'IN' _ ExpressionList | 'NOT IN' _ ExpressionList )?
+    RelationalExpression: NumericExpression  ( '='  NumericExpression | '!='  NumericExpression | '<'  NumericExpression | '>'  NumericExpression | '<='  NumericExpression | '>='  NumericExpression | 'IN'  ExpressionList | 'NOT IN'  ExpressionList )?
 
     NumericExpression:    AdditiveExpression
 
@@ -310,7 +318,7 @@ class EasySpinRdf_Parser extends Parser\Basic {
 
     NumericLiteral:    NumericLiteralUnsigned | NumericLiteralPositive | NumericLiteralNegative
 
-    NumericLiteralUnsigned:    INTEGER |  DECIMAL |  DOUBLE
+    NumericLiteralUnsigned:    INTEGER_T |  DECIMAL |  DOUBLE
 
     NumericLiteralPositive:    INTEGER_POSITIVE |  DECIMAL_POSITIVE |  DOUBLE_POSITIVE
 
@@ -326,7 +334,13 @@ class EasySpinRdf_Parser extends Parser\Basic {
 
     BlankNode:    BLANK_NODE_LABEL |  ANON
 
-    IRIREF:    '<' (/[^<>"{}|^'\]-[\x00-\x20]/)* '>'
+    */
+
+
+    /*!* SPARQL11
+    # Productions for terminals:
+
+    IRIREF:    '<' (/[^<>"{}|^'\]-[\x{00}-\x{20}]/)* '>'
 
     PNAME_NS:    PN_PREFIX? ':'
 
@@ -338,21 +352,21 @@ class EasySpinRdf_Parser extends Parser\Basic {
 
     VAR2:    '$' VARNAME
 
-    LANGTAG:    '@' /[a-zA-Z]+/ ('-' /[a-zA-Z0-9]+/)*
+    LANGTAG:    '@' /[a-zA-Z]/+ ('-' /[a-zA-Z0-9]/+)*
 
-    INTEGER:    /[0-9]/+
+    INTEGER_T:    /[0-9]/+
 
     DECIMAL:    /[0-9]/* '.' /[0-9]/+
 
     DOUBLE:    /[0-9]/+ '.' /[0-9]/* EXPONENT | '.' /([0-9])/+ EXPONENT | /([0-9])/+ EXPONENT
 
-    INTEGER_POSITIVE:    '+' INTEGER
+    INTEGER_POSITIVE:    '+' INTEGER_T
 
     DECIMAL_POSITIVE:    '+' DECIMAL
 
     DOUBLE_POSITIVE:    '+' DOUBLE
 
-    INTEGER_NEGATIVE:    '-' INTEGER
+    INTEGER_NEGATIVE:    '-' INTEGER_T
 
     DECIMAL_NEGATIVE:    '-' DECIMAL
 
@@ -360,15 +374,15 @@ class EasySpinRdf_Parser extends Parser\Basic {
 
     EXPONENT:    /[eE]/ /[+-]/? /[0-9]/+
 
-    STRING_LITERAL1:    "'" ( (/[^\x27\x5C\xA\xD]/) | ECHAR )* "'"
+    STRING_LITERAL1:    "\'" ( (/[^\x{27}\x{5C}\x{0A}\x{0D}]/) | ECHAR )* "\'"
 
-    STRING_LITERAL2:    '"' ( (/[^\x22\x5C\xA\xD]/) | ECHAR )* '"'
+    STRING_LITERAL2:    '"' ( (/[^\x{22}\x{5C}\x{0A}\x{0D}]/) | ECHAR )* '"'
 
-    STRING_LITERAL_LONG1:    "'''" ( ( "'" | "''" )? ( /[^'\]/ | ECHAR ) )* "'''"
+    STRING_LITERAL_LONG1:    "\'\'\'" ( ( "\'" | "\'\'" )? ( /[^'\]/ | ECHAR ) )* "\'\'\'"
 
     STRING_LITERAL_LONG2:    '"""' ( ( '"' | '""' )? ( /[^"\]/ | ECHAR ) )* '"""'
 
-    ECHAR:    '\' /[tbnrf\"']/
+    ECHAR:    ''\' /[tbnrf\"']/
 
     NIL:    '(' WS* ')'
 
@@ -376,13 +390,13 @@ class EasySpinRdf_Parser extends Parser\Basic {
 
     ANON:    '[' WS* ']'
 
-    PN_CHARS_BASE:    /[A-Z]/ | /[a-z]/ | /[\x00C0-\x00D6]/ | /[\x00D8-\x00F6]/ | /[\x00F8-\x02FF]/ | /[\x0370-\x037D]/ | /[\x037F-\x1FFF]/ | /[\x200C-\x200D]/ | /[\x2070-\x218F]/ | /[\x2C00-\x2FEF]/ | /[\x3001-\xD7FF]/ | /[\xF900-\xFDCF]/ | /[\xFDF0-\xFFFD]/ | /[\x10000-\xEFFFF]/
+    PN_CHARS_BASE:    /[A-Z]/ | /[a-z]/ | /[\x{00C0}-\x{00D6}]/ | /[\x{00D8}-\x{00F6}]/ | /[\x{00F8}-\x{02FF}]/ | /[\x{0370}-\x{037D}]/ | /[\x{037F}-\x{1FFF}]/ | /[\x{200C}-\x{200D}]/ | /[\x{2070}-\x{218F}]/ | /[\x{2C00}-\x{2FEF}]/ | /[\x{3001}-\x{D7FF}]/ | /[\x{F900}-\x{FDCF}]/ | /[\x{FDF0}-\x{FFFD}]/ | /[\x{10000}-\x{EFFFF}]/
 
     PN_CHARS_U:    PN_CHARS_BASE | '_'
 
-    VARNAME:    ( PN_CHARS_U | /[0-9]/ ) ( PN_CHARS_U | /[0-9]/ | '\x00B7' | /[\x0300-\x036F]/ | /[\x203F-\x2040]/ )*
+    VARNAME:    ( PN_CHARS_U | /[0-9]/ ) ( PN_CHARS_U | /[0-9]/ | '\x{00B7}' | /[\x{0300}-\x{036F}]/ | /[\x{203F}-\x{2040}]/ )*
 
-    PN_CHARS:    PN_CHARS_U | '-' | /[0-9]/ | '\x00B7' | /[\x0300-\x036F]/ | /[\x203F-\x2040]/
+    PN_CHARS:    PN_CHARS_U | '-' | /[0-9]/ | '\x{00B7}' | /[\x{0300}-\x{036F}]/ | /[\x{203F}-\x{2040}]/
 
     PN_PREFIX:    PN_CHARS_BASE (( PN_CHARS | '.')* PN_CHARS )?
 
@@ -398,6 +412,7 @@ class EasySpinRdf_Parser extends Parser\Basic {
 
 
     */
+
 
     /**
      * @var EasyRdf_Graph|null
@@ -423,7 +438,7 @@ class EasySpinRdf_Parser extends Parser\Basic {
      */
     public function parse()
     {
-        $node = $this->match_QueryUnit();
+        $node = $this->match_Query();
         return $node['query'];
     }
 
@@ -447,10 +462,10 @@ class EasySpinRdf_Parser extends Parser\Basic {
         if(isset($sub['modifier'])) {
             switch($sub['modifier']['text']) {
                 case "DISTINCT":
-                    $result['query']->add('sp:distinct', new EasyRdf_Literal_Boolean(true));
+                    //$result['query']->add('sp:distinct', new EasyRdf_Literal_Boolean(true));
                     break;
                 case "REDUCED":
-                    $result['query']->add('sp:reduced', new EasyRdf_Literal_Boolean(true));
+                    //$result['query']->add('sp:reduced', new EasyRdf_Literal_Boolean(true));
                     break;
             }
         }
