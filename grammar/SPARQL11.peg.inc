@@ -52,7 +52,8 @@ class EasySpinRdf_Parser extends Parser\Basic {
 
    # _: WS*
 
-    Query: Prologue ( SelectQuery | ConstructQuery | DescribeQuery | AskQuery ) ValuesClause
+    Query: Prologue ( SelectQuery | ConstructQuery | DescribeQuery | AskQuery )
+    #ValuesClause
 
     UpdateUnit: Update
 
@@ -62,11 +63,13 @@ class EasySpinRdf_Parser extends Parser\Basic {
 
     PrefixDecl: 'PREFIX' PNAME_NS IRIREF
 
-    SelectQuery: SelectClause DatasetClause* WhereClause SolutionModifier
+    SelectQuery: SelectClause
+    #DatasetClause* WhereClause SolutionModifier
 
     SubSelect: SelectClause WhereClause SolutionModifier ValuesClause
 
-    SelectClause: 'SELECT' [modifier:( 'DISTINCT' | 'REDUCED' )]? ( ( Var | ( '(' Expression 'AS' Var ')' ) )+ | '*' )
+    SelectClause: 'SELECT' [modifier:( 'DISTINCT' | 'REDUCED' )]?
+    #( ( Var | ( '(' Expression 'AS' Var ')' ) )+ | '*' )
 
     ConstructQuery: 'CONSTRUCT' ( ConstructTemplate DatasetClause* WhereClause SolutionModifier | DatasetClause* 'WHERE' '{' TriplesTemplate? '}' SolutionModifier )
 
@@ -386,17 +389,20 @@ class EasySpinRdf_Parser extends Parser\Basic {
 
     NIL:    '(' WS* ')'
 
-    WS:    '\x20' | '\x9' | '\xD' | '\xA'
+    WS:    '\x20' | '\x09' | '\x0D' | '\x0A'
 
     ANON:    '[' WS* ']'
 
-    PN_CHARS_BASE:    /[A-Z]/ | /[a-z]/ | /[\x{00C0}-\x{00D6}]/ | /[\x{00D8}-\x{00F6}]/ | /[\x{00F8}-\x{02FF}]/ | /[\x{0370}-\x{037D}]/ | /[\x{037F}-\x{1FFF}]/ | /[\x{200C}-\x{200D}]/ | /[\x{2070}-\x{218F}]/ | /[\x{2C00}-\x{2FEF}]/ | /[\x{3001}-\x{D7FF}]/ | /[\x{F900}-\x{FDCF}]/ | /[\x{FDF0}-\x{FFFD}]/ | /[\x{10000}-\x{EFFFF}]/
+    PN_CHARS_BASE:    /[A-Z]/ | /[a-z]/
+    # | /[\x{00C0}-\x{00D6}]/ | /[\x{00D8}-\x{00F6}]/ | /[\x{00F8}-\x{02FF}]/ | /[\x{0370}-\x{037D}]/ | /[\x{037F}-\x{1FFF}]/ | /[\x{200C}-\x{200D}]/ | /[\x{2070}-\x{218F}]/ | /[\x{2C00}-\x{2FEF}]/ | /[\x{3001}-\x{D7FF}]/ | /[\x{F900}-\x{FDCF}]/ | /[\x{FDF0}-\x{FFFD}]/ | /[\x{10000}-\x{EFFFF}]/
 
     PN_CHARS_U:    PN_CHARS_BASE | '_'
 
-    VARNAME:    ( PN_CHARS_U | /[0-9]/ ) ( PN_CHARS_U | /[0-9]/ | '\x{00B7}' | /[\x{0300}-\x{036F}]/ | /[\x{203F}-\x{2040}]/ )*
+    VARNAME:    ( PN_CHARS_U | /[0-9]/ ) ( PN_CHARS_U | /[0-9]/ )*
+    # | '/\x{00B7}/' | /[\x{0300}-\x{036F}]/ | /[\x{203F}-\x{2040}]/ )*
 
-    PN_CHARS:    PN_CHARS_U | '-' | /[0-9]/ | '\x{00B7}' | /[\x{0300}-\x{036F}]/ | /[\x{203F}-\x{2040}]/
+    PN_CHARS:    PN_CHARS_U | '-' | /[0-9]/
+    # | '\x{00B7}' | /[\x{0300}-\x{036F}]/ | /[\x{203F}-\x{2040}]/
 
     PN_PREFIX:    PN_CHARS_BASE (( PN_CHARS | '.')* PN_CHARS )?
 
@@ -438,7 +444,7 @@ class EasySpinRdf_Parser extends Parser\Basic {
      */
     public function parse()
     {
-        $node = $this->match_Query();
+        $node = $this->match_SelectQuery();
         return $node['query'];
     }
 
@@ -462,10 +468,10 @@ class EasySpinRdf_Parser extends Parser\Basic {
         if(isset($sub['modifier'])) {
             switch($sub['modifier']['text']) {
                 case "DISTINCT":
-                    //$result['query']->add('sp:distinct', new EasyRdf_Literal_Boolean(true));
+                    $result['query']->add('sp:distinct', new EasyRdf_Literal_Boolean(true));
                     break;
                 case "REDUCED":
-                    //$result['query']->add('sp:reduced', new EasyRdf_Literal_Boolean(true));
+                    $result['query']->add('sp:reduced', new EasyRdf_Literal_Boolean(true));
                     break;
             }
         }
