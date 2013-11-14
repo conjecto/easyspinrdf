@@ -63,7 +63,16 @@ class EasySpinRdf_Query_SelectTest extends EasySpinRdf_TestCase
     {
         $query = $this->graph->resource('test:distinct');
         $this->assertClass('EasySpinRdf_Query_Select', $query);
+        $this->assertEquals(true, $query->getDistinct());
         $this->assertStringEquals("SELECT DISTINCT ?this WHERE { ?this test:predicate ?object }", $query->getSparql());
+    }
+
+    public function testReduced()
+    {
+        $query = $this->graph->resource('test:reduced');
+        $this->assertClass('EasySpinRdf_Query_Select', $query);
+        $this->assertEquals(true, $query->getReduced());
+        $this->assertStringEquals("SELECT REDUCED ?this WHERE { ?this test:predicate ?object }", $query->getSparql());
     }
 
     public function testLimitOffset()
