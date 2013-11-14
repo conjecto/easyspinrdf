@@ -12,6 +12,12 @@
             "role": "Developer"
         }
     ],
+    "repositories": {
+        "hafriedlander/php-peg": {
+            "type": "git",
+            "url": "https://github.com/conjecto/php-peg"
+        }
+    },
     "require": {
         "php": ">=5.2.8",
         "easyrdf/easyrdf": "@dev",
