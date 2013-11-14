@@ -468,10 +468,10 @@ class EasySpinRdf_Parser extends Parser\Basic {
         if(isset($sub['modifier'])) {
             switch($sub['modifier']['text']) {
                 case "DISTINCT":
-                    $result['query']->add('sp:distinct', new EasyRdf_Literal_Boolean(true));
+                    $result['query']->setDistinct(true);
                     break;
                 case "REDUCED":
-                    $result['query']->add('sp:reduced', new EasyRdf_Literal_Boolean(true));
+                    $result['query']->setReduced(true);
                     break;
             }
         }

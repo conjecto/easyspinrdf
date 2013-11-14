@@ -44,7 +44,6 @@ class EasySpinRdf_Query_ParserTest extends EasySpinRdf_TestCase
         $query = $parser->parse();
 
         $this->assertClass('EasySpinRdf_Query_Select', $query);
-        $this->assertNotNull($query->get('sp:distinct'));
-        $this->assertEquals(true, $query->get('sp:distinct')->getValue());
+        $this->assertEquals(true, $query->getDistinct());
     }
 }

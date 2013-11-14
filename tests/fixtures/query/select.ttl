@@ -33,6 +33,16 @@ test:distinct
         sp:subject spin:_this
     ]) .
 
+test:reduced
+    a sp:Select ;
+    sp:reduced "true"^^xsd:boolean ;
+    sp:resultVariables (spin:_this) ;
+    sp:where ([
+        sp:object sp:_object ;
+        sp:predicate test:predicate ;
+        sp:subject spin:_this
+    ]) .
+
 test:limitOffset
     a sp:Select ;
     sp:resultVariables (spin:_this) ;

@@ -55,9 +55,10 @@ class EasySpinRdf_Query_Select extends EasySpinRdf_Query
     {
         $parts = array();
 
-        $distinct = $this->get('sp:distinct');
-        if($distinct && $distinct->isTrue()) {
+        if($this->getDistinct()) {
             $parts[] = "DISTINCT";
+        } elseif($this->getReduced()) {
+            $parts[] = "REDUCED";
         }
 
         $variables = $this->get('sp:resultVariables');
@@ -70,5 +71,51 @@ class EasySpinRdf_Query_Select extends EasySpinRdf_Query
         }
 
         return join(" ", $parts);
+    }
+
+    /**
+     * Change the DISTINCT modifier
+     *
+     * @var bool $distinct
+     * @return void
+     */
+    public function setDistinct($distinct) {
+        $this->set('sp:distinct', new EasyRdf_Literal_Boolean($distinct));
+    }
+
+    /**
+     * Return the DISTINCT modifier
+     *
+     * @return bool
+     */
+    public function getDistinct() {
+        $distinct = $this->get('sp:distinct');
+        if($distinct && $distinct->isTrue()) {
+            return $distinct->getValue();
+        }
+        return false;
+    }
+
+    /**
+     * Change the REDUCED modifier
+     *
+     * @var bool $reduced
+     * @return void
+     */
+    public function setReduced($reduced) {
+        $this->set('sp:reduced', new EasyRdf_Literal_Boolean($reduced));
+    }
+
+    /**
+     * Return the REDUCED modifier
+     *
+     * @return bool
+     */
+    public function getReduced() {
+        $reduced = $this->get('sp:reduced');
+        if($reduced) {
+            return $reduced->getValue();
+        }
+        return false;
     }
 }
