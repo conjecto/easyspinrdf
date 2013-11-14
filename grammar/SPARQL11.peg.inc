@@ -63,13 +63,12 @@ class EasySpinRdf_Parser extends Parser\Basic {
 
     PrefixDecl: 'PREFIX' PNAME_NS IRIREF
 
-    SelectQuery: SelectClause
-    #DatasetClause* WhereClause SolutionModifier
+    SelectQuery: SelectClause DatasetClause* WhereClause
+    #  SolutionModifier
 
     SubSelect: SelectClause WhereClause SolutionModifier ValuesClause
 
-    SelectClause: 'SELECT' [modifier:( 'DISTINCT' | 'REDUCED' )]?
-    #( ( Var | ( '(' Expression 'AS' Var ')' ) )+ | '*' )
+    SelectClause: 'SELECT' [modifier:( 'DISTINCT' | 'REDUCED' )]? ( vars:( <Var | ( <'(' Expression 'AS' Var ')' ) )+ | '*' )
 
     ConstructQuery: 'CONSTRUCT' ( ConstructTemplate DatasetClause* WhereClause SolutionModifier | DatasetClause* 'WHERE' '{' TriplesTemplate? '}' SolutionModifier )
 
@@ -85,7 +84,7 @@ class EasySpinRdf_Parser extends Parser\Basic {
 
     SourceSelector:    iri
 
-    WhereClause:    'WHERE'? GroupGraphPattern
+    WhereClause:    ['WHERE']? GroupGraphPattern
 
     SolutionModifier:    GroupClause? HavingClause? OrderClause? LimitOffsetClauses?
 
@@ -161,11 +160,11 @@ class EasySpinRdf_Parser extends Parser\Basic {
 
     TriplesTemplate:    TriplesSameSubject ( '.' TriplesTemplate? )?
 
-    GroupGraphPattern:    '{' ( SubSelect | GroupGraphPatternSub ) '}'
+    GroupGraphPattern:    '{'< ( SubSelect | GroupGraphPatternSub ) >'}'
 
-    GroupGraphPatternSub:    TriplesBlock? ( GraphPatternNotTriples '.'? TriplesBlock? )*
+    GroupGraphPatternSub:    <TriplesBlock>? ( GraphPatternNotTriples '.'? <TriplesBlock>? )*
 
-    TriplesBlock:    TriplesSameSubjectPath ( '.' TriplesBlock? )?
+    TriplesBlock:    TriplesSameSubjectPath ( '.' <TriplesBlock>? )?
 
     GraphPatternNotTriples:    GroupOrUnionGraphPattern | OptionalGraphPattern | MinusGraphPattern | GraphGraphPattern | ServiceGraphPattern | Filter | Bind | InlineData
 
@@ -207,7 +206,7 @@ class EasySpinRdf_Parser extends Parser\Basic {
 
     TriplesSameSubject:    VarOrTerm PropertyListNotEmpty |  TriplesNode PropertyList
 
-    PropertyList:    PropertyListNotEmpty?
+    PropertyList:    <PropertyListNotEmpty>?
 
     PropertyListNotEmpty:    Verb ObjectList ( ';' ( Verb ObjectList )? )*
 
@@ -223,9 +222,9 @@ class EasySpinRdf_Parser extends Parser\Basic {
 
     TriplesSameSubjectPath:    VarOrTerm PropertyListPathNotEmpty |  TriplesNodePath PropertyListPath
 
-    PropertyListPath:    PropertyListPathNotEmpty?
+    PropertyListPath:    <PropertyListPathNotEmpty>?
 
-    PropertyListPathNotEmpty:    ( VerbPath | VerbSimple ) ObjectListPath ( ';' ( ( VerbPath | VerbSimple ) ObjectList )? )*
+    PropertyListPathNotEmpty:    <( VerbPath | VerbSimple )> ObjectListPath ( ';' ( <( VerbPath | VerbSimple )> ObjectList )? )*
 
     VerbPath:    Path
 
@@ -473,6 +472,15 @@ class EasySpinRdf_Parser extends Parser\Basic {
                 case "REDUCED":
                     $result['query']->add('sp:reduced', new EasyRdf_Literal_Boolean(true));
                     break;
+            }
+        }
+        if(isset($sub['vars'])) {
+            $varsTab = explode(" ",$sub['vars']['text']);
+            $result['query']->add('sp:resultVariables', $this->graph->newBNode(array('rdf:List')));
+            foreach($varsTab as $var){
+                $newBnode = $this->graph->newBNodeId();
+                $this->graph->add($newBnode, 'sp:varName', substr($var,1));
+                $result['query']->get('sp:resultVariables')->append($this->graph->resource($newBnode));
             }
         }
     }

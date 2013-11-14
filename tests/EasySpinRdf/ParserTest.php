@@ -39,12 +39,13 @@ class EasySpinRdf_Query_ParserTest extends EasySpinRdf_TestCase
 {
     public function testParseSelectDistinctQuery()
     {
-        $sparql = "SELECT DISTINCT * WHERE { ?this test:predicate ?object }";
+        $sparql = "SELECT DISTINCT ?this ?plop WHERE { ?this ?plop ?object }";
         $parser = new EasySpinRdf_Parser($sparql);
         $query = $parser->parse();
 
         $this->assertClass('EasySpinRdf_Query_Select', $query);
         $this->assertNotNull($query->get('sp:distinct'));
         $this->assertEquals(true, $query->get('sp:distinct')->getValue());
+        $this->assertNotNull($query->get('sp:resultVariables'));
     }
 }
