@@ -52,8 +52,7 @@ class EasySpinRdf_Parser extends Parser\Basic {
 
    # _: WS*
 
-    Query: Prologue ( SelectQuery | ConstructQuery | DescribeQuery | AskQuery )
-    #ValuesClause
+    Query: Prologue ( SelectQuery | ConstructQuery | DescribeQuery | AskQuery ) ValuesClause
 
     UpdateUnit: Update
 
@@ -63,8 +62,7 @@ class EasySpinRdf_Parser extends Parser\Basic {
 
     PrefixDecl: 'PREFIX' PNAME_NS IRIREF
 
-    SelectQuery: SelectClause DatasetClause* WhereClause
-    #  SolutionModifier
+    SelectQuery: SelectClause DatasetClause* WhereClause SolutionModifier
 
     SubSelect: SelectClause WhereClause SolutionModifier ValuesClause
 
@@ -400,6 +398,7 @@ class EasySpinRdf_Parser extends Parser\Basic {
     VARNAME:    ( PN_CHARS_U | /[0-9]/ ) ( PN_CHARS_U | /[0-9]/ )*
     # | '/\x{00B7}/' | /[\x{0300}-\x{036F}]/ | /[\x{203F}-\x{2040}]/ )*
 
+
     PN_CHARS:    PN_CHARS_U | '-' | /[0-9]/
     # | '\x{00B7}' | /[\x{0300}-\x{036F}]/ | /[\x{203F}-\x{2040}]/
 
@@ -455,6 +454,7 @@ class EasySpinRdf_Parser extends Parser\Basic {
     public function SelectQuery__construct(&$result)
     {
         $result['query'] = $this->graph->newBNode(array('sp:Select'));
+
     }
 
     /**
@@ -475,13 +475,22 @@ class EasySpinRdf_Parser extends Parser\Basic {
             }
         }
         if(isset($sub['vars'])) {
-            $varsTab = explode(" ",$sub['vars']['text']);
             $result['query']->add('sp:resultVariables', $this->graph->newBNode(array('rdf:List')));
-            foreach($varsTab as $var){
-                $newBnode = $this->graph->newBNodeId();
-                $this->graph->add($newBnode, 'sp:varName', substr($var,1));
-                $result['query']->get('sp:resultVariables')->append($this->graph->resource($newBnode));
+            foreach($sub['vars']['resources'] as $var ){
+                $result['query']->get('sp:resultVariables')->append($var);
             }
         }
+    }
+
+    /**
+     * SelectClause : Var
+     * @param $result
+     * @param $sub
+     */
+    public function SelectClause_Var(&$result, $sub)
+    {
+        $newBnode = $this->graph->newBNodeId();
+        $this->graph->add($newBnode, 'sp:varName', substr($sub['text'],1));
+        $result['resources'][]=$this->graph->resource($newBnode);
     }
 }
