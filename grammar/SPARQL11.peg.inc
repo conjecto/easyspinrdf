@@ -433,6 +433,22 @@ class EasySpinRdf_Parser extends Parser\Basic {
     }
 
     /**
+     * {@inheritdoc}
+     *
+     * @param $result
+     * @param $subres
+     * @param null $storetag
+     */
+    function store ( &$result, $subres, $storetag = NULL ) {
+        parent::store($result, $subres, $storetag);
+        foreach(array_keys($subres) as $key) {
+            if(!isset($result[$key])) {
+                $result[$key] = $subres[$key];
+            }
+        }
+    }
+
+    /**
      * Return the parsed query
      * @return EasySpinRdf_Query
      */
@@ -450,7 +466,6 @@ class EasySpinRdf_Parser extends Parser\Basic {
     public function SelectQuery__construct(&$result)
     {
         $result['query'] = $this->graph->newBNode(array('sp:Select'));
-
     }
 
     /**
@@ -491,7 +506,7 @@ class EasySpinRdf_Parser extends Parser\Basic {
      */
     public function SelectQuery_WhereClause(&$result, $sub)
     {
-        $result['query']->add('sp:where', $sub);
+//        $result['query']->add('sp:where', $sub);
     }
 
     /**
@@ -501,8 +516,8 @@ class EasySpinRdf_Parser extends Parser\Basic {
      */
     public function GroupGraphPattern_SubSelect(&$result, $sub)
     {
-        $result=$this->graph->newBNode(array('rdf:List'));
-        $result->append($sub);
+//        $result = $this->graph->newBNode(array('rdf:List'));
+//        $result->append($sub);
     }
 
     /**
@@ -512,10 +527,10 @@ class EasySpinRdf_Parser extends Parser\Basic {
      */
     public function GroupGraphPattern_GroupGraphPatternSub(&$result, $sub)
     {
-        $result=$this->graph->newBNode(array('rdf:List'));
-        foreach($sub['blocks'] as $block ){
-            $result->append($block);
-        }
+//        $result = $this->graph->newBNode(array('rdf:List'));
+//        foreach($sub['blocks'] as $block ){
+//            $result->append($block);
+//        }
     }
 
     /**
@@ -529,7 +544,37 @@ class EasySpinRdf_Parser extends Parser\Basic {
         $this->graph->add($newBnode, 'sp:subject', $sub['subject']);
         $this->graph->add($newBnode, 'sp:predicate', $sub['predicate']);
         $this->graph->add($newBnode, 'sp:object', $sub['object']);
-        $result['blocks'][]=$this->graph->resource($newBnode);
+        $result['blocks'][] = $this->graph->resource($newBnode);
+    }
+
+    /**
+     * TriplesSameSubjectPath : VarOrTerm
+     * @param $result
+     * @param $sub
+     */
+    public function TriplesSameSubjectPath_VarOrTerm(&$result, $sub)
+    {
+        $result['subject'] = $sub['var'];
+    }
+
+    /**
+     * PropertyListPathNotEmpty : VerbSimple
+     * @param $result
+     * @param $sub
+     */
+    public function PropertyListPathNotEmpty_VerbSimple(&$result, $sub)
+    {
+        $result['predicate'] = $sub['var'];
+    }
+
+    /**
+     * PropertyListPathNotEmpty : ObjectListPath
+     * @param $result
+     * @param $sub
+     */
+    public function PropertyListPathNotEmpty_ObjectListPath(&$result, $sub)
+    {
+        $result['object'] = $sub['var'];
     }
 
     /**
@@ -541,7 +586,7 @@ class EasySpinRdf_Parser extends Parser\Basic {
     {
         $newBnode = $this->graph->newBNodeId();
         $this->graph->add($newBnode, 'sp:varName', $sub['text']);
-        $result['var']=$this->graph->resource($newBnode);
+        $result['var'] = $this->graph->resource($newBnode);
     }
 
     /**
@@ -551,9 +596,7 @@ class EasySpinRdf_Parser extends Parser\Basic {
      */
     public function VAR2_VARNAME(&$result, $sub)
     {
-        $newBnode = $this->graph->newBNodeId();
-        $this->graph->add($newBnode, 'sp:varName', $sub['text']);
-        $result['var']=$this->graph->resource($newBnode);
+        return $this->VAR1_VARNAME($result, $sub);
     }
 
     /**
@@ -563,9 +606,7 @@ class EasySpinRdf_Parser extends Parser\Basic {
      */
     public function SelectClause_Var(&$result, $sub)
     {
-        $newBnode = $this->graph->newBNodeId();
-        $this->graph->add($newBnode, 'sp:varName', substr($sub['text'],1));
-        $result['resources'][]=$this->graph->resource($newBnode);
+        $result['resources'][] = $sub['var'];
     }
 
     /**
@@ -577,6 +618,6 @@ class EasySpinRdf_Parser extends Parser\Basic {
     {
         $newBnode = $this->graph->newBNodeId();
         $this->graph->add($newBnode, 'sp:varName', substr($sub['text'],1));
-        $result['expression']=$this->graph->resource($newBnode);
+        $result['expression'] = $this->graph->resource($newBnode);
     }
 }
