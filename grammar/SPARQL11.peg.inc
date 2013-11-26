@@ -66,7 +66,7 @@ class EasySpinRdf_Parser extends Parser\Basic {
 
     SubSelect: SelectClause WhereClause SolutionModifier ValuesClause
 
-    SelectClause: 'SELECT' [modifier:( 'DISTINCT' | 'REDUCED' )]? ( vars:( <Var | ( <'(' Expression 'AS' Var ')' ) )+ | '*' )
+    SelectClause: 'SELECT' [modifier:( 'DISTINCT' | 'REDUCED' )]? ( vars:( <Var | expressions:( <'(' Expression ['AS'] Var ')' ) )+ | '*' )
 
     ConstructQuery: 'CONSTRUCT' ( ConstructTemplate DatasetClause* WhereClause SolutionModifier | DatasetClause* 'WHERE' '{' TriplesTemplate? '}' SolutionModifier )
 
@@ -390,17 +390,13 @@ class EasySpinRdf_Parser extends Parser\Basic {
 
     ANON:    '[' WS* ']'
 
-    PN_CHARS_BASE:    /[A-Z]/ | /[a-z]/
-    # | /[\x{00C0}-\x{00D6}]/ | /[\x{00D8}-\x{00F6}]/ | /[\x{00F8}-\x{02FF}]/ | /[\x{0370}-\x{037D}]/ | /[\x{037F}-\x{1FFF}]/ | /[\x{200C}-\x{200D}]/ | /[\x{2070}-\x{218F}]/ | /[\x{2C00}-\x{2FEF}]/ | /[\x{3001}-\x{D7FF}]/ | /[\x{F900}-\x{FDCF}]/ | /[\x{FDF0}-\x{FFFD}]/ | /[\x{10000}-\x{EFFFF}]/
+    PN_CHARS_BASE:    /[A-Z]/ | /[a-z]/ | /[\x{00C0}-\x{00D6}]/u | /[\x{00D8}-\x{00F6}]/u | /[\x{00F8}-\x{02FF}]/u | /[\x{0370}-\x{037D}]/u | /[\x{037F}-\x{1FFF}]/u | /[\x{200C}-\x{200D}]/u | /[\x{2070}-\x{218F}]/u | /[\x{2C00}-\x{2FEF}]/u | /[\x{3001}-\x{D7FF}]/u | /[\x{F900}-\x{FDCF}]/u | /[\x{FDF0}-\x{FFFD}]/u | /[\x{10000}-\x{EFFFF}]/u
 
     PN_CHARS_U:    PN_CHARS_BASE | '_'
 
-    VARNAME:    ( PN_CHARS_U | /[0-9]/ ) ( PN_CHARS_U | /[0-9]/ )*
-    # | '/\x{00B7}/' | /[\x{0300}-\x{036F}]/ | /[\x{203F}-\x{2040}]/ )*
+    VARNAME:    ( PN_CHARS_U | /[0-9]/ ) ( PN_CHARS_U | /[0-9]/ )* | '/\x{00B7}/u' | /[\x{0300}-\x{036F}]/u | /[\x{203F}-\x{2040}]/u )*
 
-
-    PN_CHARS:    PN_CHARS_U | '-' | /[0-9]/
-    # | '\x{00B7}' | /[\x{0300}-\x{036F}]/ | /[\x{203F}-\x{2040}]/
+    PN_CHARS:    PN_CHARS_U | '-' | /[0-9]/ | '/\x{00B7}/u' | /[\x{0300}-\x{036F}]/u | /[\x{203F}-\x{2040}]/u
 
     PN_PREFIX:    PN_CHARS_BASE (( PN_CHARS | '.')* PN_CHARS )?
 
@@ -479,7 +475,85 @@ class EasySpinRdf_Parser extends Parser\Basic {
             foreach($sub['vars']['resources'] as $var ){
                 $result['query']->get('sp:resultVariables')->append($var);
             }
+            if(isset($sub['vars']['expressions'])){
+                foreach($sub['vars']['expressions'] as $expr ){
+                    $this->graph->add($expr['resources'][0],'sp:expression',$expr['expression']);
+                    $result['query']->get('sp:resultVariables')->append($expr['resources'][0]);
+                }
+            }
         }
+    }
+
+    /**
+     * SelectQuery : WhereClause
+     * @param $result
+     * @param $sub
+     */
+    public function SelectQuery_WhereClause(&$result, $sub)
+    {
+        $result['query']->add('sp:where', $sub);
+    }
+
+    /**
+     * GroupGraphPattern : SubSelect
+     * @param $result
+     * @param $sub
+     */
+    public function GroupGraphPattern_SubSelect(&$result, $sub)
+    {
+        $result=$this->graph->newBNode(array('rdf:List'));
+        $result->append($sub);
+    }
+
+    /**
+     * GroupGraphPattern : GroupGraphPatternSub
+     * @param $result
+     * @param $sub
+     */
+    public function GroupGraphPattern_GroupGraphPatternSub(&$result, $sub)
+    {
+        $result=$this->graph->newBNode(array('rdf:List'));
+        foreach($sub['blocks'] as $block ){
+            $result->append($block);
+        }
+    }
+
+    /**
+     * GroupGraphPatternSub : TriplesBlock
+     * @param $result
+     * @param $sub
+     */
+    public function GroupGraphPatternSub_TriplesBlock(&$result, $sub)
+    {
+        $newBnode = $this->graph->newBNodeId();
+        $this->graph->add($newBnode, 'sp:subject', $sub['subject']);
+        $this->graph->add($newBnode, 'sp:predicate', $sub['predicate']);
+        $this->graph->add($newBnode, 'sp:object', $sub['object']);
+        $result['blocks'][]=$this->graph->resource($newBnode);
+    }
+
+    /**
+     * VAR1 : VARNAME
+     * @param $result
+     * @param $sub
+     */
+    public function VAR1_VARNAME(&$result, $sub)
+    {
+        $newBnode = $this->graph->newBNodeId();
+        $this->graph->add($newBnode, 'sp:varName', $sub['text']);
+        $result['var']=$this->graph->resource($newBnode);
+    }
+
+    /**
+     * VAR2 : VARNAME
+     * @param $result
+     * @param $sub
+     */
+    public function VAR2_VARNAME(&$result, $sub)
+    {
+        $newBnode = $this->graph->newBNodeId();
+        $this->graph->add($newBnode, 'sp:varName', $sub['text']);
+        $result['var']=$this->graph->resource($newBnode);
     }
 
     /**
@@ -492,5 +566,17 @@ class EasySpinRdf_Parser extends Parser\Basic {
         $newBnode = $this->graph->newBNodeId();
         $this->graph->add($newBnode, 'sp:varName', substr($sub['text'],1));
         $result['resources'][]=$this->graph->resource($newBnode);
+    }
+
+    /**
+     * SelectClause : Expression
+     * @param $result
+     * @param $sub
+     */
+    public function SelectClause_Expression(&$result, $sub)
+    {
+        $newBnode = $this->graph->newBNodeId();
+        $this->graph->add($newBnode, 'sp:varName', substr($sub['text'],1));
+        $result['expression']=$this->graph->resource($newBnode);
     }
 }
