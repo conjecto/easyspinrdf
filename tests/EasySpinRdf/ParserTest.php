@@ -49,6 +49,6 @@ class EasySpinRdf_Query_ParserTest extends EasySpinRdf_TestCase
         $this->assertNotNull($query->get('sp:resultVariables'));
         $this->assertClass('EasyRdf_Collection', $query->get('sp:resultVariables'));
 
-        $this->assertEquals("SELECT DISTINCT ?this ?predicate ?object", $query->getSparql());
+        $this->assertEquals("SELECT DISTINCT ?this ?predicate ?object WHERE { ?this ?predicate ?object. ?this2 ?predicate2 ?object2 }", $query->getSparql());
     }
 }
