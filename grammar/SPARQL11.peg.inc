@@ -66,7 +66,7 @@ class EasySpinRdf_Parser extends Parser\Basic {
 
     SubSelect: s:SelectClause > w:WhereClause > sm:SolutionModifier > vc:ValuesClause
 
-    SelectClause: 'SELECT' > modifier:( 'DISTINCT' | 'REDUCED' )? > ( vars:( <Var | expressions:( <'(' Expression ['AS'] Var ')' ) )+ | '*' )
+    SelectClause: 'SELECT'] (modifier:( 'DISTINCT' | 'REDUCED' ))? > ( vars:( <Var | expressions:( <'(' Expression ['AS'] Var ')' ) )+ | '*' )
 
     ConstructQuery: 'CONSTRUCT' ( ConstructTemplate DatasetClause* WhereClause SolutionModifier | DatasetClause* 'WHERE' '{' TriplesTemplate? '}' SolutionModifier )
 
@@ -505,7 +505,15 @@ class EasySpinRdf_Parser extends Parser\Basic {
                 $this->query->get('sp:resultVariables')->append($result['s']['vars']['return']);
             }
         }
-        $this->query->add('sp:where', $result['w']['return']);
+        $whereRdfCol = $this->graph->newBNode(array('rdf:List'));
+        if(is_array($result['w']['return'])){
+            foreach($result['w']['return'] as $element){
+                $whereRdfCol->append($element);
+            }
+        }else{
+            $whereRdfCol->append($result['w']['return']);
+        }
+        $this->query->add('sp:where', $whereRdfCol);
         $result['query'] = $this->query;
     }
 
@@ -556,13 +564,26 @@ class EasySpinRdf_Parser extends Parser\Basic {
                     break;
             }
         }
+
         if(isset($result['s']['vars'])) {
             $spSelect->add('sp:resultVariables', $this->graph->newBNode(array('rdf:List')));
-            foreach($result['s']['vars']['return'] as $var ){
-                $spSelect->get('sp:resultVariables')->append($var);
+            if(is_array($result['s']['vars']['return'])){
+                foreach($result['s']['vars']['return'] as $var ){
+                    $spSelect->get('sp:resultVariables')->append($var);
+                }
+            }else{
+                $spSelect->get('sp:resultVariables')->append($result['s']['vars']['return']);
             }
         }
-        $spSelect->add('sp:where', $result['w']['return']);
+        $whereRdfCol = $this->graph->newBNode(array('rdf:List'));
+        if(is_array($result['w']['return'])){
+            foreach($result['w']['return'] as $element){
+                $whereRdfCol->append($element);
+            }
+        }else{
+            $whereRdfCol->append($result['w']['return']);
+        }
+        $spSelect->add('sp:where',$whereRdfCol);
     }
 
     /**
@@ -571,12 +592,22 @@ class EasySpinRdf_Parser extends Parser\Basic {
      */
     public function GroupGraphPattern__finalise(&$result)
     {
-          $result['return'] = $this->graph->newBNode(array('rdf:List'));
-          if(isset($result['p'])){
-              foreach($result['p']['return'] as $block ){
-                  $result['return']->append($block);
-              }
-          }
+        $result['return'] = array();
+        if(isset($result['p']) && isset($result['p']['return'])){
+            if(is_array($result['p']['return'])){
+                foreach($result['p']['return'] as $block ){
+                    if(is_array($block)){
+                        foreach($block as $subBlock){
+                            $result['return'][] = $subBlock;
+                        }
+                    }else{
+                        $result['return'][] = $block;
+                    }
+                }
+            }else{
+                $result['return'][] = $result['p']['return'];
+            }
+        }
     }
 
     /**
@@ -585,9 +616,13 @@ class EasySpinRdf_Parser extends Parser\Basic {
      */
     public function GroupGraphPatternSub__finalise(&$result)
     {
-       $result['return'] = $result['t1']['return'];
+       if(isset($result['t1']['return'])){
+           $result['return'] = $result['t1']['return'];
+       }else{
+           $result['return'] = array();
+       }
        if(isset($result['t2']) && isset($result['t2']['return']))
-            $result['return'] = array_merge($result['return'],$result['t2']['return']);
+            $result['return'][] = $result['t2']['return'];
     }
 
     /**
@@ -613,7 +648,7 @@ class EasySpinRdf_Parser extends Parser\Basic {
      */
     public function GroupGraphPatternSub_GraphPatternNotTriples(&$result, $sub)
     {
-//        $this->GroupGraphPatternSub_TriplesBlock($result,$sub);
+
     }
 
     /**
