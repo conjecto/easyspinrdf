@@ -39,7 +39,7 @@ class EasySpinRdf_Query_ParserTest extends EasySpinRdf_TestCase
 {
     public function testParseSelectDistinctQuery()
     {
-        $sparql = "SELECT DISTINCT ?this ?predicate ?object WHERE { ?this ?predicate ?object. ?this2 ?predicate2 ?object2 }";
+        $sparql = "SELECT DISTINCT ?this WHERE { ?this ?predicate ?object }";
         $parser = new EasySpinRdf_Parser($sparql);
         $query = $parser->parse();
 
@@ -49,6 +49,57 @@ class EasySpinRdf_Query_ParserTest extends EasySpinRdf_TestCase
         $this->assertNotNull($query->get('sp:resultVariables'));
         $this->assertClass('EasyRdf_Collection', $query->get('sp:resultVariables'));
 
-        $this->assertEquals("SELECT DISTINCT ?this ?predicate ?object WHERE { ?this ?predicate ?object. ?this2 ?predicate2 ?object2 }", $query->getSparql());
+        $this->assertNotNull($query->get('sp:where'));
+        $this->assertClass('EasyRdf_Collection', $query->get('sp:where'));
+
+        $this->assertEquals("SELECT DISTINCT ?this WHERE { ?this ?predicate ?object }", $query->getSparql());
+    }
+
+    public function testParseSelectAllQuery()
+    {
+        $sparql = "SELECT * WHERE { ?this ?predicate ?object }";
+        $parser = new EasySpinRdf_Parser($sparql);
+        $query = $parser->parse();
+
+        $this->assertClass('EasySpinRdf_Query_Select', $query);
+        $this->assertNull($query->get('sp:resultVariables'));
+        $this->assertNotNull($query->get('sp:where'));
+        $this->assertClass('EasyRdf_Collection', $query->get('sp:where'));
+
+        $this->assertEquals("SELECT * WHERE { ?this ?predicate ?object }", $query->getSparql());
+    }
+
+    public function testParseSelectMultiVarAndTripleQuery()
+    {
+        $sparql = "SELECT ?this ?predicate ?object WHERE { ?this ?predicate ?object. ?this ?predicate2 ?object2. ?this ?predicate3 ?object3  }";
+        $parser = new EasySpinRdf_Parser($sparql);
+        $query = $parser->parse();
+
+        $this->assertClass('EasySpinRdf_Query_Select', $query);
+
+
+        $this->assertNotNull($query->get('sp:resultVariables'));
+        $this->assertClass('EasyRdf_Collection', $query->get('sp:resultVariables'));
+
+        $this->assertNotNull($query->get('sp:where'));
+        $this->assertClass('EasyRdf_Collection', $query->get('sp:where'));
+
+        $this->assertEquals("SELECT ?this ?predicate ?object WHERE { ?this ?predicate ?object. ?this ?predicate2 ?object2. ?this ?predicate3 ?object3 }", $query->getSparql());
+    }
+
+    public function _testParseSelectAndSubSelectQuery()
+    {
+        $sparql = "SELECT * WHERE { ?this ?predicate ?object. { SELECT ?object WHERE { ?this2 ?predicate ?object }}";
+        $parser = new EasySpinRdf_Parser($sparql);
+        $query = $parser->parse();
+
+        $this->assertClass('EasySpinRdf_Query_Select', $query);
+
+        $this->assertNull($query->get('sp:resultVariables'));
+
+        $this->assertNotNull($query->get('sp:where'));
+        $this->assertClass('EasyRdf_Collection', $query->get('sp:where'));
+
+        $this->assertEquals("SELECT * WHERE { ?this ?predicate ?object. { SELECT ?object WHERE { ?this2 ?predicate2 ?object }}", $query->getSparql());
     }
 }

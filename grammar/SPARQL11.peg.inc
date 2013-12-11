@@ -62,11 +62,11 @@ class EasySpinRdf_Parser extends Parser\Basic {
 
     PrefixDecl: 'PREFIX' PNAME_NS IRIREF
 
-    SelectQuery: SelectClause DatasetClause* WhereClause SolutionModifier
+    SelectQuery: s:SelectClause > d:DatasetClause* > w:WhereClause > sm:SolutionModifier
 
-    SubSelect: SelectClause WhereClause SolutionModifier ValuesClause
+    SubSelect: s:SelectClause > w:WhereClause > sm:SolutionModifier > vc:ValuesClause
 
-    SelectClause: 'SELECT' [modifier:( 'DISTINCT' | 'REDUCED' )]? ( vars:( <Var | expressions:( <'(' Expression ['AS'] Var ')' ) )+ | '*' )
+    SelectClause: 'SELECT' > modifier:( 'DISTINCT' | 'REDUCED' )? > ( vars:( <Var | expressions:( <'(' Expression ['AS'] Var ')' ) )+ | '*' )
 
     ConstructQuery: 'CONSTRUCT' ( ConstructTemplate DatasetClause* WhereClause SolutionModifier | DatasetClause* 'WHERE' '{' TriplesTemplate? '}' SolutionModifier )
 
@@ -82,7 +82,7 @@ class EasySpinRdf_Parser extends Parser\Basic {
 
     SourceSelector:    iri
 
-    WhereClause:    ['WHERE']? GroupGraphPattern
+    WhereClause:    'WHERE']? GroupGraphPattern
 
     SolutionModifier:    GroupClause? HavingClause? OrderClause? LimitOffsetClauses?
 
@@ -158,11 +158,11 @@ class EasySpinRdf_Parser extends Parser\Basic {
 
     TriplesTemplate:    TriplesSameSubject ( '.' TriplesTemplate? )?
 
-    GroupGraphPattern:    '{'< ( SubSelect | GroupGraphPatternSub ) >'}'
+    GroupGraphPattern:    '{'> p:( SubSelect | GroupGraphPatternSub ) <'}'
 
-    GroupGraphPatternSub:    <TriplesBlock>? ( GraphPatternNotTriples '.'? <TriplesBlock>? )*
+    GroupGraphPatternSub:    t1:TriplesBlock? t2:( GraphPatternNotTriples > '.'? > TriplesBlock? )*
 
-    TriplesBlock:    TriplesSameSubjectPath ( '.' <TriplesBlock>? )?
+    TriplesBlock:    a:TriplesSameSubjectPath > (n:( '.'> TriplesBlock? ))?
 
     GraphPatternNotTriples:    GroupOrUnionGraphPattern | OptionalGraphPattern | MinusGraphPattern | GraphGraphPattern | ServiceGraphPattern | Filter | Bind | InlineData
 
@@ -218,15 +218,15 @@ class EasySpinRdf_Parser extends Parser\Basic {
 
     /*!* SPARQL11
 
-    TriplesSameSubjectPath:    VarOrTerm PropertyListPathNotEmpty |  TriplesNodePath PropertyListPath
+    TriplesSameSubjectPath:    v:(VarOrTerm PropertyListPathNotEmpty) |  t:(TriplesNodePath PropertyListPath)
 
     PropertyListPath:    <PropertyListPathNotEmpty>?
 
-    PropertyListPathNotEmpty:    <( VerbPath | VerbSimple )> ObjectListPath ( ';' ( <( VerbPath | VerbSimple )> ObjectList )? )*
+    PropertyListPathNotEmpty:    p:<( VerbPath | VerbSimple )> o:ObjectListPath ( ';' ( <( VerbPath | VerbSimple )> ObjectList )? )*
 
     VerbPath:    Path
 
-    VerbSimple:    Var
+    VerbSimple:    v:Var
 
     ObjectListPath:    ObjectPath ( ',' ObjectPath )*
 
@@ -272,7 +272,7 @@ class EasySpinRdf_Parser extends Parser\Basic {
 
     VarOrIri:    Var | iri
 
-    Var:  VAR1 | VAR2
+    Var:  varname:(VAR1 | VAR2)
 
     GraphTerm:    iri |  RDFLiteral |  NumericLiteral |  BooleanLiteral |  BlankNode |  NIL
 
@@ -348,9 +348,9 @@ class EasySpinRdf_Parser extends Parser\Basic {
 
     BLANK_NODE_LABEL:    '_:' ( PN_CHARS_U | /[0-9]/ ) (( PN_CHARS | '.' )* PN_CHARS )?
 
-    VAR1:    '?' VARNAME
+    VAR1:    '?' vn:VARNAME
 
-    VAR2:    '$' VARNAME
+    VAR2:    '$' vn:VARNAME
 
     LANGTAG:    '@' /[a-zA-Z]/+ ('-' /[a-zA-Z0-9]/+)*
 
@@ -419,6 +419,11 @@ class EasySpinRdf_Parser extends Parser\Basic {
      */
     private $graph = null;
 
+    /**
+     * @var EasySpinRdf_Query|null
+     */
+    private $query = null;
+
 
     /**
      * Construct the parser
@@ -441,9 +446,15 @@ class EasySpinRdf_Parser extends Parser\Basic {
      */
     function store ( &$result, $subres, $storetag = NULL ) {
         parent::store($result, $subres, $storetag);
-        foreach(array_keys($subres) as $key) {
-            if(!isset($result[$key])) {
-                $result[$key] = $subres[$key];
+        if(isset($subres['return'])){
+            if(!isset($result['return'])) {
+                $result['return'] = $subres['return'];
+            }else{
+                if(is_array($result['return'])){
+                    $result['return'][] = $subres['return'];
+                }else{
+                    $result['return'] = array($result['return'],$subres['return']);
+                }
             }
         }
     }
@@ -465,60 +476,54 @@ class EasySpinRdf_Parser extends Parser\Basic {
      */
     public function SelectQuery__construct(&$result)
     {
-        $result['query'] = $this->graph->newBNode(array('sp:Select'));
+        $this->query = $this->graph->newBNode(array('sp:Select'));
     }
 
     /**
-     * SelectQuery : SelectClause
+     * SelectQuery : finalise
      * @param $result
-     * @param $sub
      */
-    public function SelectQuery_SelectClause(&$result, $sub)
+    public function SelectQuery__finalise(&$result)
     {
-        if(isset($sub['modifier'])) {
-            switch($sub['modifier']['text']) {
+        if(isset($result['s']['modifier'])) {
+            switch($result['s']['modifier']['text']) {
                 case "DISTINCT":
-                    $result['query']->setDistinct(true);
+                    $this->query->setDistinct(true);
                     break;
                 case "REDUCED":
-                    $result['query']->setReduced(true);
+                    $this->query->setReduced(true);
                     break;
             }
         }
-        if(isset($sub['vars'])) {
-            $result['query']->add('sp:resultVariables', $this->graph->newBNode(array('rdf:List')));
-            foreach($sub['vars']['resources'] as $var ){
-                $result['query']->get('sp:resultVariables')->append($var);
-            }
-            if(isset($sub['vars']['expressions'])){
-                foreach($sub['vars']['expressions'] as $expr ){
-                    $this->graph->add($expr['resources'][0],'sp:expression',$expr['expression']);
-                    $result['query']->get('sp:resultVariables')->append($expr['resources'][0]);
+        if(isset($result['s']['vars']['return'])) {
+            $this->query->add('sp:resultVariables', $this->graph->newBNode(array('rdf:List')));
+            if(is_array($result['s']['vars']['return'])){
+                foreach($result['s']['vars']['return'] as $var ){
+                    $this->query->get('sp:resultVariables')->append($var);
                 }
+            }else{
+                $this->query->get('sp:resultVariables')->append($result['s']['vars']['return']);
             }
         }
+        $this->query->add('sp:where', $result['w']['return']);
+        $result['query'] = $this->query;
     }
 
     /**
-     * SelectQuery : WhereClause
+     * SelectClause : finalise
      * @param $result
-     * @param $sub
      */
-    public function SelectQuery_WhereClause(&$result, $sub)
+    public function SelectClause__finalise(&$result)
     {
-        $result['query']->add('sp:where', $sub['groupBlocks']);
+
     }
 
     /**
-     * GroupGraphPattern : SubSelect
+     * WhereClause : finalise
      * @param $result
-     * @param $sub
      */
-    public function GroupGraphPattern_SubSelect(&$result, $sub)
+    public function WhereClause_finalise(&$result)
     {
-        if(!isset($result['groupBlocks']))
-            $result['groupBlocks'] = $this->graph->newBNode(array('rdf:List'));
-        $result['groupBlocks']->append($sub['subSelect']);
 
     }
 
@@ -529,90 +534,76 @@ class EasySpinRdf_Parser extends Parser\Basic {
      */
     public function SubSelect__construct(&$result)
     {
-        $result['subSelect'] = $this->graph->newBNode(array('sp:SubQuery'));
-        $this->graph->add($result['subSelect'], 'sp:query', $this->graph->newBNode(array('sp:Select')));
-    }
+        /*
+         */  }
 
     /**
-     * SubSelect: SelectClause
+     * SubSelect : finalise
      * @param $result
-     * @param $sub
      */
-    public function SubSelect_SelectClause(&$result, $sub)
+    public function SubSelect__finalise(&$result)
     {
-        /*    if(isset($sub['modifier'])) {
-                switch($sub['modifier']['text']) {
-                    case "DISTINCT":
-                        $result['query']->setDistinct(true);
-                        break;
-                    case "REDUCED":
-                        $result['query']->setReduced(true);
-                        break;
-                }
-            }*/
-        if(isset($sub['vars'])) {
-            $result['subSelect']->get('sp:query')->add('sp:resultVariables', $this->graph->newBNode(array('rdf:List')));
-            foreach($sub['vars']['resources'] as $var ){
-                $result['subSelect']->get('sp:query')->get('sp:resultVariables')->append($var);
-            }
-            if(isset($sub['vars']['expressions'])){
-                foreach($sub['vars']['expressions'] as $expr ){
-                    $this->graph->add($expr['resources'][0],'sp:expression',$expr['expression']);
-                    $result['subSelect']->get('sp:query')->get('sp:resultVariables')->append($expr['resources'][0]);
-                }
+        $result['return'] = $this->graph->newBNode(array('sp:SubQuery'));
+        $spSelect = $this->graph->newBNode(array('sp:Select'));
+        $this->graph->add($result['return'], 'sp:query', $spSelect);
+        if(isset($result['s']['modifier'])) {
+            switch($result['s']['modifier']['text']) {
+                case "DISTINCT":
+                    $spSelect->setDistinct(true);
+                    break;
+                case "REDUCED":
+                    $spSelect->setReduced(true);
+                    break;
             }
         }
-    }
-
-    /**
-     * SubSelect : WhereClause
-     * @param $result
-     * @param $sub
-     */
-    public function SubSelect_WhereClause(&$result, $sub)
-    {
-        $result['subSelect']->get('sp:query')->add('sp:where', $sub['groupBlocks']);
-    }
-
-    /**
-     * GroupGraphPattern : GroupGraphPatternSub
-     * @param $result
-     * @param $sub
-     */
-    public function GroupGraphPattern_GroupGraphPatternSub(&$result, $sub)
-    {
-        if(!isset($result['groupBlocks']))
-            $result['groupBlocks'] = $this->graph->newBNode(array('rdf:List'));
-        foreach($sub['blocks'] as $block ){
-            $result['groupBlocks']->append($block);
+        if(isset($result['s']['vars'])) {
+            $spSelect->add('sp:resultVariables', $this->graph->newBNode(array('rdf:List')));
+            foreach($result['s']['vars']['return'] as $var ){
+                $spSelect->get('sp:resultVariables')->append($var);
+            }
         }
+        $spSelect->add('sp:where', $result['w']['return']);
     }
 
     /**
-     * GroupGraphPatternSub : TriplesBlock
+     * GroupGraphPattern : finalise
      * @param $result
-     * @param $sub
      */
-    public function GroupGraphPatternSub_TriplesBlock(&$result, $sub)
+    public function GroupGraphPattern__finalise(&$result)
     {
-
-        $newBnode = $this->graph->newBNodeId();
-        $this->graph->add($newBnode, 'sp:subject', $sub['subject']);
-        $this->graph->add($newBnode, 'sp:predicate', $sub['predicate']);
-        $this->graph->add($newBnode, 'sp:object', $sub['object']);
-        $result['blocks'][] = $this->graph->resource($newBnode);
-        if(isset($sub) && isset($sub['blocks']))
-            $result['blocks']=array_merge($result['blocks'],$sub['blocks']);
+          $result['return'] = $this->graph->newBNode(array('rdf:List'));
+          if(isset($result['p'])){
+              foreach($result['p']['return'] as $block ){
+                  $result['return']->append($block);
+              }
+          }
     }
 
     /**
-     * TriplesBlock : TriplesBlock
+     * GroupGraphPatternSub : finalise
      * @param $result
-     * @param $sub
      */
-    public function TriplesBlock_TriplesBlock(&$result, $sub)
+    public function GroupGraphPatternSub__finalise(&$result)
     {
-        $this->GroupGraphPatternSub_TriplesBlock($result,$sub);
+       $result['return'] = $result['t1']['return'];
+       if(isset($result['t2']) && isset($result['t2']['return']))
+            $result['return'] = array_merge($result['return'],$result['t2']['return']);
+    }
+
+    /**
+     * TriplesBlock : finalise
+     * @param $result
+     */
+    public function TriplesBlock__finalise(&$result)
+    {
+        if(isset($result['a']) && isset($result['a']['return'])){
+            $result['return'] = array($result['a']['return']);
+        }else{
+            $result['return'] = array();
+        }
+        if(isset($result['n']) && isset($result['n']['return']))
+            $result['return'] = array_merge($result['return'],$result['n']['return']);
+
     }
 
     /**
@@ -622,80 +613,59 @@ class EasySpinRdf_Parser extends Parser\Basic {
      */
     public function GroupGraphPatternSub_GraphPatternNotTriples(&$result, $sub)
     {
-        $this->GroupGraphPatternSub_TriplesBlock($result,$sub);
+//        $this->GroupGraphPatternSub_TriplesBlock($result,$sub);
     }
 
     /**
-     * TriplesSameSubjectPath : VarOrTerm
+     * TriplesSameSubjectPath : finalise
      * @param $result
-     * @param $sub
      */
-    public function TriplesSameSubjectPath_VarOrTerm(&$result, $sub)
+    public function TriplesSameSubjectPath__finalise(&$result)
     {
-        $result['subject'] = $sub['var'];
+        $newBnode = $this->graph->newBNode(array('sp:TriplePattern'));
+        $this->graph->add($newBnode, 'sp:subject', $result['v']['return'][0]);
+        $this->graph->add($newBnode, 'sp:predicate', $result['v']['return'][1]['predicate']['return']);
+        $this->graph->add($newBnode, 'sp:object', $result['v']['return'][1]['object']['return']);
+        $result['return'] = $this->graph->resource($newBnode);
     }
 
     /**
-     * PropertyListPathNotEmpty : VerbSimple
+     * PropertyListPathNotEmpty : finalise
      * @param $result
-     * @param $sub
      */
-    public function PropertyListPathNotEmpty_VerbSimple(&$result, $sub)
+    public function PropertyListPathNotEmpty__finalise(&$result)
     {
-        $result['predicate'] = $sub['var'];
+        $result['return']['predicate'] = $result['p'];
+        $result['return']['object'] = $result['o'];
     }
 
     /**
-     * PropertyListPathNotEmpty : ObjectListPath
+     * VAR1 : finalise
      * @param $result
-     * @param $sub
      */
-    public function PropertyListPathNotEmpty_ObjectListPath(&$result, $sub)
+    public function VAR1__finalise(&$result)
     {
-        $result['object'] = $sub['var'];
+        $newBnode = $this->graph->resource("_:".$result['vn']['text']);
+        $this->graph->add($newBnode, 'sp:varName', $result['vn']['text']);
+        $this->graph->add($newBnode,'a','sp:Variable');
+        $result['return'] = $this->graph->resource($newBnode);
     }
 
     /**
-     * VAR1 : VARNAME
+     * VAR2 : finalise
      * @param $result
-     * @param $sub
      */
-    public function VAR1_VARNAME(&$result, $sub)
+    public function VAR2__finalise(&$result)
     {
-        $newBnode = $this->graph->resource("_:".$sub['text']);
-        $this->graph->add($newBnode, 'sp:varName', $sub['text']);
-        $result['var'] = $this->graph->resource($newBnode);
+        $this->VAR1__finalise($result);
     }
 
     /**
-     * VAR2 : VARNAME
+     * Var : finalise
      * @param $result
-     * @param $sub
      */
-    public function VAR2_VARNAME(&$result, $sub)
+    public function Var__finalise(&$result)
     {
-        $this->VAR1_VARNAME($result, $sub);
-    }
-
-    /**
-     * SelectClause : Var
-     * @param $result
-     * @param $sub
-     */
-    public function SelectClause_Var(&$result, $sub)
-    {
-        $result['resources'][] = $sub['var'];
-    }
-
-    /**
-     * SelectClause : Expression
-     * @param $result
-     * @param $sub
-     */
-    public function SelectClause_Expression(&$result, $sub)
-    {
-        // $newBnode = $this->graph->newBNodeId();
-        // $this->graph->add($newBnode, 'sp:varName', substr($sub['text'],1));
-        // $result['expression'] = $this->graph->resource($newBnode);
+        //  $result['return'] = $result['varname']['return'];
     }
 }
