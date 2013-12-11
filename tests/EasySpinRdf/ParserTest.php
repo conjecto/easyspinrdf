@@ -102,4 +102,40 @@ class EasySpinRdf_Query_ParserTest extends EasySpinRdf_TestCase
 
         $this->assertEquals("SELECT * WHERE { { SELECT ?object WHERE { ?this2 ?predicate2 ?object } } }", $query->getSparql());
     }
+
+    public function testParseSelectOrderByVarQuery()
+    {
+        $sparql = "SELECT * WHERE { ?this ?predicate ?object } ORDER BY ?predicate";
+        $parser = new EasySpinRdf_Parser($sparql);
+        $query = $parser->parse();
+
+        $this->assertClass('EasySpinRdf_Query_Select', $query);
+
+        $this->assertNull($query->get('sp:resultVariables'));
+
+        $this->assertNotNull($query->get('sp:where'));
+        $this->assertClass('EasyRdf_Collection', $query->get('sp:where'));
+        $this->assertNotNull($query->get('sp:orderBy'));
+        $this->assertClass('EasyRdf_Collection', $query->get('sp:orderBy'));
+
+        $this->assertEquals("SELECT * WHERE { ?this ?predicate ?object } ORDER BY ?predicate", $query->getSparql());
+    }
+
+    public function testParseSelectOrderByASCDESCQuery()
+    {
+        $sparql = "SELECT * WHERE { ?this ?predicate ?object } ORDER BY ASC ( ?predicate ) DESC ( ?object )";
+        $parser = new EasySpinRdf_Parser($sparql);
+        $query = $parser->parse();
+
+        $this->assertClass('EasySpinRdf_Query_Select', $query);
+
+        $this->assertNull($query->get('sp:resultVariables'));
+
+        $this->assertNotNull($query->get('sp:where'));
+        $this->assertClass('EasyRdf_Collection', $query->get('sp:where'));
+        $this->assertNotNull($query->get('sp:orderBy'));
+        $this->assertClass('EasyRdf_Collection', $query->get('sp:orderBy'));
+
+        $this->assertEquals("SELECT * WHERE { ?this ?predicate ?object } ORDER BY ASC(?predicate) DESC(?object)", $query->getSparql());
+    }
 }

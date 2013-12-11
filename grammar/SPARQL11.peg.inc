@@ -84,19 +84,19 @@ class EasySpinRdf_Parser extends Parser\Basic {
 
     WhereClause:    'WHERE']? GroupGraphPattern
 
-    SolutionModifier:    GroupClause? HavingClause? OrderClause? LimitOffsetClauses?
+    SolutionModifier:    g:GroupClause? h:HavingClause? o:OrderClause? l:LimitOffsetClauses?
 
-    GroupClause:    'GROUP' 'BY' GroupCondition+
+    GroupClause:    'GROUP'] 'BY'] GroupCondition+
 
     GroupCondition:    BuiltInCall | FunctionCall | '(' Expression ( 'AS' Var )? ')' | Var
 
-    HavingClause:    'HAVING' HavingCondition+
+    HavingClause:    'HAVING'] HavingCondition+
 
     HavingCondition:    Constraint
 
-    OrderClause:    'ORDER' 'BY' OrderCondition+
+    OrderClause:    'ORDER'] 'BY' ocs:( [ OrderCondition)+
 
-    OrderCondition:     ( ( 'ASC' | 'DESC' ) BrackettedExpression ) | ( Constraint | Var )
+    OrderCondition:     oc1:( ocAD:( 'ASC' | 'DESC' ) > ocBE:BrackettedExpression ) | ( Constraint | Var )
 
     LimitOffsetClauses:    LimitClause OffsetClause? | OffsetClause LimitClause?
 
@@ -296,7 +296,7 @@ class EasySpinRdf_Parser extends Parser\Basic {
 
     PrimaryExpression:    BrackettedExpression | BuiltInCall | iriOrFunction | RDFLiteral | NumericLiteral | BooleanLiteral | Var
 
-    BrackettedExpression:    '(' Expression ')'
+    BrackettedExpression:    '('> Expression <')'
 
     BuiltInCall:      Aggregate |  'STR' '(' Expression ')' |  'LANG' '(' Expression ')' |  'LANGMATCHES' '(' Expression ',' Expression ')' |  'DATATYPE' '(' Expression ')'|  'BOUND' '(' Var ')' |  'IRI' '(' Expression ')' |  'URI' '(' Expression ')' |  'BNODE' ( '(' Expression ')' | NIL ) |  'RAND' NIL |  'ABS' '(' Expression ')' |  'CEIL' '(' Expression ')' |  'FLOOR' '(' Expression ')' |  'ROUND' '(' Expression ')' |  'CONCAT' ExpressionList |  SubstringExpression |  'STRLEN' '(' Expression ')' |  StrReplaceExpression |  'UCASE' '(' Expression ')' |  'LCASE' '(' Expression ')' |  'ENCODE_FOR_URI' '(' Expression ')' |  'CONTAINS' '(' Expression ',' Expression ')' |  'STRSTARTS' '(' Expression ',' Expression ')' |  'STRENDS' '(' Expression ',' Expression ')' |  'STRBEFORE' '(' Expression ',' Expression ')' |  'STRAFTER' '(' Expression ',' Expression ')' |  'YEAR' '(' Expression ')' |  'MONTH' '(' Expression ')' |  'DAY' '(' Expression ')' |  'HOURS' '(' Expression ')' |  'MINUTES' '(' Expression ')' |  'SECONDS' '(' Expression ')' |  'TIMEZONE' '(' Expression ')' |  'TZ' '(' Expression ')' |  'NOW' NIL |  'UUID' NIL |  'STRUUID' NIL |  'MD5' '(' Expression ')' |  'SHA1' '(' Expression ')' |  'SHA256' '(' Expression ')' |  'SHA384' '(' Expression ')' |  'SHA512' '(' Expression ')' |  'COALESCE' ExpressionList |  'IF' '(' Expression ',' Expression ',' Expression ')' |  'STRLANG' '(' Expression ',' Expression ')' |  'STRDT' '(' Expression ',' Expression ')' |  'sameTerm' '(' Expression ',' Expression ')' |  'isIRI' '(' Expression ')' |  'isURI' '(' Expression ')' |  'isBLANK' '(' Expression ')' |  'isLITERAL' '(' Expression ')' |  'isNUMERIC' '(' Expression ')' |  RegexExpression |  ExistsFunc |  NotExistsFunc
 
@@ -420,12 +420,6 @@ class EasySpinRdf_Parser extends Parser\Basic {
     private $graph = null;
 
     /**
-     * @var EasySpinRdf_Query|null
-     */
-    private $query = null;
-
-
-    /**
      * Construct the parser
      *
      * @param $query
@@ -466,17 +460,7 @@ class EasySpinRdf_Parser extends Parser\Basic {
     public function parse()
     {
         $node = $this->match_SelectQuery();
-        return $node['query'];
-    }
-
-    /**
-     * Create a new SelectQuery
-     *
-     * @param $result
-     */
-    public function SelectQuery__construct(&$result)
-    {
-        $this->query = $this->graph->newBNode(array('sp:Select'));
+        return $node['return'];
     }
 
     /**
@@ -485,24 +469,25 @@ class EasySpinRdf_Parser extends Parser\Basic {
      */
     public function SelectQuery__finalise(&$result)
     {
+        $result['return'] = $this->graph->newBNode(array('sp:Select'));
         if(isset($result['s']['modifier'])) {
             switch($result['s']['modifier']['text']) {
                 case "DISTINCT":
-                    $this->query->setDistinct(true);
+                    $result['return']->setDistinct(true);
                     break;
                 case "REDUCED":
-                    $this->query->setReduced(true);
+                    $result['return']->setReduced(true);
                     break;
             }
         }
         if(isset($result['s']['vars']['return'])) {
-            $this->query->add('sp:resultVariables', $this->graph->newBNode(array('rdf:List')));
+            $result['return']->add('sp:resultVariables', $this->graph->newBNode(array('rdf:List')));
             if(is_array($result['s']['vars']['return'])){
                 foreach($result['s']['vars']['return'] as $var ){
-                    $this->query->get('sp:resultVariables')->append($var);
+                    $result['return']->get('sp:resultVariables')->append($var);
                 }
             }else{
-                $this->query->get('sp:resultVariables')->append($result['s']['vars']['return']);
+                $result['return']->get('sp:resultVariables')->append($result['s']['vars']['return']);
             }
         }
         $whereRdfCol = $this->graph->newBNode(array('rdf:List'));
@@ -513,8 +498,19 @@ class EasySpinRdf_Parser extends Parser\Basic {
         }else{
             $whereRdfCol->append($result['w']['return']);
         }
-        $this->query->add('sp:where', $whereRdfCol);
-        $result['query'] = $this->query;
+        $result['return']->add('sp:where', $whereRdfCol);
+        if(isset($result['sm']['o'])){
+            $orderRdfCol = $this->graph->newBNode(array('rdf:List'));
+            if(is_array($result['sm']['o']['return'])){
+                foreach($result['sm']['o']['return'] as $element){
+                    $orderRdfCol->append($element);
+                }
+            }else{
+                $orderRdfCol->append($result['sm']['o']['return']);
+            }
+            $result['return']->add('sp:orderBy', $orderRdfCol);
+        }
+
     }
 
     /**
@@ -542,48 +538,19 @@ class EasySpinRdf_Parser extends Parser\Basic {
      */
     public function SubSelect__construct(&$result)
     {
-        /*
-         */  }
 
+    }
     /**
      * SubSelect : finalise
      * @param $result
      */
     public function SubSelect__finalise(&$result)
     {
-        $result['return'] = $this->graph->newBNode(array('sp:SubQuery'));
-        $spSelect = $this->graph->newBNode(array('sp:Select'));
-        $this->graph->add($result['return'], 'sp:query', $spSelect);
-        if(isset($result['s']['modifier'])) {
-            switch($result['s']['modifier']['text']) {
-                case "DISTINCT":
-                    $spSelect->setDistinct(true);
-                    break;
-                case "REDUCED":
-                    $spSelect->setReduced(true);
-                    break;
-            }
-        }
-
-        if(isset($result['s']['vars'])) {
-            $spSelect->add('sp:resultVariables', $this->graph->newBNode(array('rdf:List')));
-            if(is_array($result['s']['vars']['return'])){
-                foreach($result['s']['vars']['return'] as $var ){
-                    $spSelect->get('sp:resultVariables')->append($var);
-                }
-            }else{
-                $spSelect->get('sp:resultVariables')->append($result['s']['vars']['return']);
-            }
-        }
-        $whereRdfCol = $this->graph->newBNode(array('rdf:List'));
-        if(is_array($result['w']['return'])){
-            foreach($result['w']['return'] as $element){
-                $whereRdfCol->append($element);
-            }
-        }else{
-            $whereRdfCol->append($result['w']['return']);
-        }
-        $spSelect->add('sp:where',$whereRdfCol);
+        $tmp = $this->graph->newBNode(array('sp:SubQuery'));
+        $this->SelectQuery__finalise($result);
+        $this->graph->add($tmp, 'sp:query', $result['return']);
+        //@todo make vc: ValuesClause rule with $tmp
+        $result['return'] = $tmp;
     }
 
     /**
@@ -680,9 +647,8 @@ class EasySpinRdf_Parser extends Parser\Basic {
      */
     public function VAR1__finalise(&$result)
     {
-        $newBnode = $this->graph->resource("_:".$result['vn']['text']);
+        $newBnode = $this->graph->resource("_:".$result['vn']['text'],array('sp:Variable'));
         $this->graph->add($newBnode, 'sp:varName', $result['vn']['text']);
-        $this->graph->add($newBnode,'a','sp:Variable');
         $result['return'] = $this->graph->resource($newBnode);
     }
 
@@ -701,6 +667,42 @@ class EasySpinRdf_Parser extends Parser\Basic {
      */
     public function Var__finalise(&$result)
     {
-        //  $result['return'] = $result['varname']['return'];
+
+    }
+
+    /**
+     * OrderClause : finalise
+     * @param $result
+     */
+    public function OrderClause__finalise(&$result)
+    {
+        $result['return'] = array();
+        if(is_array($result['ocs']['return'])){
+            foreach($result['ocs']['return'] as $ocs ){
+                $result['return'][] = $ocs;
+            }
+        }else{
+            $result['return'][] = $result['ocs']['return'];
+        }
+    }
+
+    /**
+     * OrderCondition : finalise
+     * @param $result
+     */
+    public function OrderCondition__finalise(&$result)
+    {
+        if(isset($result['oc1'])){
+            switch($result['oc1']['ocAD']['text']) {
+                case "ASC":
+                    $orderAD = $this->graph->newBNode(array('sp:Asc'));
+                    break;
+                case "DESC":
+                    $orderAD = $this->graph->newBNode(array('sp:Desc'));
+                    break;
+            }
+            $this->graph->add($orderAD, 'sp:expression',$result['oc1']['ocBE']['return']);
+            $result['return'] = $orderAD ;
+        }
     }
 }
