@@ -84,7 +84,7 @@ class EasySpinRdf_Parser extends Parser\Basic {
 
     WhereClause:    'WHERE']? GroupGraphPattern
 
-    SolutionModifier:    g:GroupClause? h:HavingClause? o:OrderClause? l:LimitOffsetClauses?
+    SolutionModifier:    g:GroupClause? h:HavingClause? o:OrderClause? lo:LimitOffsetClauses?
 
     GroupClause:    'GROUP'] 'BY'] GroupCondition+
 
@@ -98,11 +98,11 @@ class EasySpinRdf_Parser extends Parser\Basic {
 
     OrderCondition:     oc1:( ocAD:( 'ASC' | 'DESC' ) > ocBE:BrackettedExpression ) | ( Constraint | Var )
 
-    LimitOffsetClauses:    LimitClause OffsetClause? | OffsetClause LimitClause?
+    LimitOffsetClauses:    l:LimitClause (< o:OffsetClause)? | o:OffsetClause (< l:LimitClause)?
 
-    LimitClause:    'LIMIT' INTEGER
+    LimitClause:    'LIMIT'] limit:INTEGER
 
-    OffsetClause:    'OFFSET' INTEGER
+    OffsetClause:    'OFFSET'] offset:INTEGER
 
     ValuesClause:    ( 'VALUES' DataBlock )?
 
@@ -510,6 +510,14 @@ class EasySpinRdf_Parser extends Parser\Basic {
             }
             $result['return']->add('sp:orderBy', $orderRdfCol);
         }
+        if(isset($result['sm']['lo'])){
+            if(isset($result['sm']['lo']['l'])){
+                $result['return']->add('sp:limit', $result['sm']['lo']['l']['return']);
+            }
+            if(isset($result['sm']['lo']['o'])){
+                $result['return']->add('sp:offset', $result['sm']['lo']['o']['return']);
+            }
+        }
 
     }
 
@@ -704,5 +712,23 @@ class EasySpinRdf_Parser extends Parser\Basic {
             $this->graph->add($orderAD, 'sp:expression',$result['oc1']['ocBE']['return']);
             $result['return'] = $orderAD ;
         }
+    }
+
+    /**
+     * LimitClause : finalise
+     * @param $result
+     */
+    public function LimitClause__finalise(&$result)
+    {
+        $result['return'] = intval($result['limit']['text']);
+    }
+
+    /**
+     * OffsetClause : finalise
+     * @param $result
+     */
+    public function OffsetClause__finalise(&$result)
+    {
+        $result['return'] = intval($result['offset']['text']);
     }
 }

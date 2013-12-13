@@ -138,4 +138,56 @@ class EasySpinRdf_Query_ParserTest extends EasySpinRdf_TestCase
 
         $this->assertEquals("SELECT * WHERE { ?this ?predicate ?object } ORDER BY ASC(?predicate) DESC(?object)", $query->getSparql());
     }
+
+    public function testParseSelectLimitQuery()
+    {
+        $sparql = "SELECT * WHERE { ?this ?predicate ?object } LIMIT 10";
+        $parser = new EasySpinRdf_Parser($sparql);
+        $query = $parser->parse();
+
+        $this->assertClass('EasySpinRdf_Query_Select', $query);
+
+        $this->assertNull($query->get('sp:resultVariables'));
+
+        $this->assertNotNull($query->get('sp:where'));
+        $this->assertClass('EasyRdf_Collection', $query->get('sp:where'));
+        $this->assertNotNull($query->get('sp:limit'));
+
+        $this->assertEquals("SELECT * WHERE { ?this ?predicate ?object } LIMIT 10", $query->getSparql());
+    }
+
+    public function testParseSelectOffsetQuery()
+    {
+        $sparql = "SELECT * WHERE { ?this ?predicate ?object } OFFSET 10";
+        $parser = new EasySpinRdf_Parser($sparql);
+        $query = $parser->parse();
+
+        $this->assertClass('EasySpinRdf_Query_Select', $query);
+
+        $this->assertNull($query->get('sp:resultVariables'));
+
+        $this->assertNotNull($query->get('sp:where'));
+        $this->assertClass('EasyRdf_Collection', $query->get('sp:where'));
+        $this->assertNotNull($query->get('sp:offset'));
+
+        $this->assertEquals("SELECT * WHERE { ?this ?predicate ?object } OFFSET 10", $query->getSparql());
+    }
+
+    public function testParseSelectLimitAndOffsetQuery()
+    {
+        $sparql = "SELECT * WHERE { ?this ?predicate ?object } LIMIT 10 OFFSET 5";
+        $parser = new EasySpinRdf_Parser($sparql);
+        $query = $parser->parse();
+
+        $this->assertClass('EasySpinRdf_Query_Select', $query);
+
+        $this->assertNull($query->get('sp:resultVariables'));
+
+        $this->assertNotNull($query->get('sp:where'));
+        $this->assertClass('EasyRdf_Collection', $query->get('sp:where'));
+        $this->assertNotNull($query->get('sp:limit'));
+        $this->assertNotNull($query->get('sp:offset'));
+
+        $this->assertEquals("SELECT * WHERE { ?this ?predicate ?object } LIMIT 10 OFFSET 5", $query->getSparql());
+    }
 }
