@@ -1,5 +1,6 @@
-<!-- build.xml -->
-<project>
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project name="EasySpinRdfSparqlParser" default="build">
 <target name="composer" depends="clean" description="Download composer and install project dependancies">
     <exec executable="wget" failonerror="true">
         <arg value="-nc" />
