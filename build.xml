@@ -1,27 +1,28 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <project name="EasySpinRdfSparqlParser" default="build">
-<target name="composer" depends="clean" description="Download composer and install project dependancies">
-    <exec executable="wget" failonerror="true">
-        <arg value="-nc" />
-        <arg value="http://getcomposer.org/composer.phar" />
+    <target name="build" depends="composer,phpunit"/>
+    <target name="composer"  description="Download composer and install project dependancies">
+        <exec executable="wget" >
+            <arg value="-nc" />
+            <arg value="http://getcomposer.org/composer.phar" />
+        </exec>
+        <exec executable="php">
+            <arg value="composer.phar" />
+            <arg value="config" />
+            <arg value="--global" />
+            <arg value="github-oauth.github.com" />
+            <arg value="github_oauth-key" />
+        </exec>
+        <exec executable="php" >
+            <arg value="composer.phar" />
+            <arg value="install" />
+            <arg value="--dev" />
+            <arg value="--prefer-source" />
+        </exec>
+    </target>
+    <target name="phpunit" description="Execute EasySpinRDF tests">
+    <exec executable="${basedir}/vendor/bin/phpunit" >
     </exec>
-    <exec executable="php">
-        <arg value="composer.phar" />
-        <arg value="config" />
-        <arg value="--global" />
-        <arg value="github-oauth.github.com" />
-        <arg value="github_oauth-key" />
-    </exec>
-    <exec executable="php" failonerror="true">
-        <arg value="composer.phar" />
-        <arg value="install" />
-        <arg value="--dev" />
-        <arg value="--prefer-source" />
-    </exec>
-</target>
-<target name="phpunit" description="Execute EasySpinRDF tests">
-<exec executable="${basedir}/vendor/bin/phpunit" failonerror="true">
-</exec>
-</target>
+    </target>
 </project>
