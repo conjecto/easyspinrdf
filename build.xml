@@ -7,13 +7,6 @@
             <arg value="-nc" />
             <arg value="http://getcomposer.org/composer.phar" />
         </exec>
-        <exec executable="php">
-            <arg value="composer.phar" />
-            <arg value="config" />
-            <arg value="--global" />
-            <arg value="github-oauth.github.com" />
-            <arg value="github_oauth-key" />
-        </exec>
         <exec executable="php" >
             <arg value="composer.phar" />
             <arg value="install" />
