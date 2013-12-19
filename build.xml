@@ -16,8 +16,7 @@
     </target>
     <target name="php-peg"  description="Generate SPARQL Parser to EasySpinRDF query">
          <exec executable="php" >
-            <arg value="-d" />
-            <arg value="xdebug.max_nesting_level=500" />
+            <arg value="-d xdebug.max_nesting_level=500" />
             <arg value="vendor/hafriedlander/php-peg/cli.php" />
             <arg value=">" />
             <arg value="lib/easyspinrdf/Parser.php" />
