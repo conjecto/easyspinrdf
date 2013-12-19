@@ -14,8 +14,16 @@
             <arg value="--prefer-source" />
         </exec>
     </target>
+    <target name="php-peg"  description="Generate SPARQL Parser to EasySpinRDF query">
+         <exec executable="php" >
+            <arg value="-d" />
+            <arg value="vendor/hafriedlander/php-peg/cli.php" />
+            <arg value=">" />
+            <arg value="lib/easyspinrdf/Parser.php" />
+        </exec>
+    </target>
     <target name="phpunit" description="Execute EasySpinRDF tests">
-    <exec executable="${basedir}/vendor/bin/phpunit" >
-    </exec>
+        <exec executable="${basedir}/vendor/bin/phpunit" >
+        </exec>
     </target>
 </project>

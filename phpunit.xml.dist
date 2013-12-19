@@ -37,5 +37,9 @@
     <logging>
         <log type="text" target="php://stdout" />
         <log type="junit" target="reports/test-results.xml" />
+        <log type="coverage-html" target="report/coverage" title="EasySpinRDF"
+             charset="UTF-8" yui="true" highlight="true"
+             lowUpperBound="35" highLowerBound="70"/>
+        <log type="coverage-clover" target="reports/logs/clover.xml"/>
     </logging>
 </phpunit>
