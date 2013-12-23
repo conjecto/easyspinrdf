@@ -34,7 +34,7 @@
     },
     "scripts": {
         "post-install-cmd": [
-            "php vendor/hafriedlander/php-peg/cli.php grammar/SPARQL11.peg.inc lib/EasySpinRdf/Parser.php"
+            "php -d xdebug.max_nesting_level=500 vendor/hafriedlander/php-peg/cli.php grammar/SPARQL11.peg.inc lib/EasySpinRdf/Parser.php"
         ]
     }
 }

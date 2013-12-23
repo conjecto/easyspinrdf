@@ -82,6 +82,10 @@ class EasySpinRdf_Parser extends Parser\Basic {
 
     SourceSelector:    iri
 
+    */
+
+    /*!* SPARQL11
+
     WhereClause:    'WHERE']? GroupGraphPattern
 
     SolutionModifier:    g:GroupClause? h:HavingClause? o:OrderClause? lo:LimitOffsetClauses?
@@ -175,6 +179,10 @@ class EasySpinRdf_Parser extends Parser\Basic {
     Bind:    'BIND' '(' Expression 'AS' Var ')'
 
     InlineData:    'VALUES' DataBlock
+
+    */
+
+    /*!* SPARQL11
 
     DataBlock:    InlineDataOneVar | InlineDataFull
 
@@ -306,6 +314,10 @@ class EasySpinRdf_Parser extends Parser\Basic {
 
     StrReplaceExpression:    'REPLACE' '(' Expression ',' Expression ',' Expression ( ',' Expression )? ')'
 
+    */
+
+    /*!* SPARQL11
+
     ExistsFunc:    'EXISTS' GroupGraphPattern
 
     NotExistsFunc:    'NOT' 'EXISTS' GroupGraphPattern
@@ -371,6 +383,10 @@ class EasySpinRdf_Parser extends Parser\Basic {
     DECIMAL_NEGATIVE:    '-' DECIMAL
 
     DOUBLE_NEGATIVE:    '-' DOUBLE
+
+    */
+
+    /*!* SPARQL11
 
     EXPONENT:    /[eE]/ /[+-]/? /[0-9]/+
 

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <project name="EasySpinRdfSparqlParser" default="build">
-    <target name="build" depends="composer,phpunit,php-peg"/>
+    <target name="build" depends="composer,phpunit"/>
     <target name="composer"  description="Download composer and install project dependancies">
         <exec executable="wget" >
             <arg value="-nc" />
@@ -12,14 +12,6 @@
             <arg value="install" />
             <arg value="--dev" />
             <arg value="--prefer-source" />
-        </exec>
-    </target>
-    <target name="php-peg"  description="Generate SPARQL Parser to EasySpinRDF query">
-         <exec executable="php" >
-            <arg value="-d xdebug.max_nesting_level=500" />
-            <arg value="vendor/hafriedlander/php-peg/cli.php" />
-            <arg value=">" />
-            <arg value="lib/easyspinrdf/Parser.php" />
         </exec>
     </target>
     <target name="phpunit" description="Execute EasySpinRDF tests">
