@@ -1,7 +1,7 @@
 {
     "name": "conjecto/easyspinrdf",
     "description": "SPIN implementation using the awsome EasyRdf",
-    "version": "0.1.0-beta.1",
+    "version": "0.1.0",
     "type": "library",
     "license": "BSD-3-Clause",
     "authors": [
