@@ -12,30 +12,17 @@
             "role": "Developer"
         }
     ],
-    "repositories": {
-        "hafriedlander/php-peg": {
-            "type": "git",
-            "url": "https://github.com/conjecto/php-peg"
-        }
-    },
     "require": {
         "php": ">=5.2.8",
         "easyrdf/easyrdf": "@dev",
-        "hafriedlander/php-peg": "@dev"
     },
     "require-dev": {
         "phpunit/PHPUnit": ">=3.5.15"
     },
     "autoload": {
         "psr-0": {
-            "EasySpinRdf_": "lib/",
-            "hafriedlander": "vendor/hafriedlander/php-peg/lib/"
+            "EasySpinRdf_": "lib/"
         }
-    },
-    "scripts": {
-        "post-install-cmd": [
-            "php vendor/hafriedlander/php-peg/cli.php grammar/SPARQL11.peg.inc lib/EasySpinRdf/Parser.php"
-        ]
     }
 }
 
