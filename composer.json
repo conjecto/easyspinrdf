@@ -14,7 +14,7 @@
     ],
     "require": {
         "php": ">=5.2.8",
-        "easyrdf/easyrdf": "@dev",
+        "easyrdf/easyrdf": "@dev"
     },
     "require-dev": {
         "phpunit/PHPUnit": ">=3.5.15"
