@@ -66,7 +66,9 @@ class EasySpinRdf_Parser extends Parser\Basic {
 
     SubSelect: s:SelectClause > w:WhereClause > sm:SolutionModifier > vc:ValuesClause
 
-    SelectClause: 'SELECT'] (modifier:( 'DISTINCT' | 'REDUCED' ))? > ( vars:( <Var | expressions:( <'(' Expression ['AS'] Var ')' ) )+ | '*' )
+    SelectClause: 'SELECT'] (modifier:( 'DISTINCT' | 'REDUCED' ))? > ( vars:( <Var | <SelectClauseExpression )+ | '*' )
+
+    SelectClauseExpression:  '(' e:<Expression <'AS'> v:Var> ')'
 
     ConstructQuery: 'CONSTRUCT' ( ConstructTemplate DatasetClause* WhereClause SolutionModifier | DatasetClause* 'WHERE' '{' TriplesTemplate? '}' SolutionModifier )
 
@@ -286,13 +288,13 @@ class EasySpinRdf_Parser extends Parser\Basic {
 
     Expression:    ConditionalOrExpression
 
-    ConditionalOrExpression:    ConditionalAndExpression ( '||' ConditionalAndExpression )*
+    ConditionalOrExpression:    a:ConditionalAndExpression b:( <'||'> ConditionalAndExpression )*
 
-    ConditionalAndExpression:    ValueLogical ( '&&' ValueLogical )*
+    ConditionalAndExpression:    ValueLogical ( <'&&'> ValueLogical )*
 
-    ValueLogical: RelationalExpression
+    ValueLogical:    RelationalExpression
 
-    RelationalExpression: NumericExpression  ( '='  NumericExpression | '!='  NumericExpression | '<'  NumericExpression | '>'  NumericExpression | '<='  NumericExpression | '>='  NumericExpression | 'IN'  ExpressionList | 'NOT IN'  ExpressionList )?
+    RelationalExpression:    NumericExpression ( '=' NumericExpression | '!='  NumericExpression | '<'  NumericExpression | '>'  NumericExpression | '<='  NumericExpression | '>='  NumericExpression | 'IN'  ExpressionList | 'NOT IN'  ExpressionList )?
 
     NumericExpression:    AdditiveExpression
 
@@ -547,6 +549,16 @@ class EasySpinRdf_Parser extends Parser\Basic {
     }
 
     /**
+     * SelectClauseExpression : finalise
+     * @param $result
+     */
+    public function SelectClauseExpression__finalise(&$result)
+    {
+        $result['v']['return']->add('sp:expression',$result['e']['return']);
+        $result['return'] =  $result['v']['return'];
+    }
+
+    /**
      * WhereClause : finalise
      * @param $result
      */
@@ -564,6 +576,7 @@ class EasySpinRdf_Parser extends Parser\Basic {
     {
 
     }
+
     /**
      * SubSelect : finalise
      * @param $result
@@ -692,6 +705,37 @@ class EasySpinRdf_Parser extends Parser\Basic {
     public function Var__finalise(&$result)
     {
 
+    }
+
+    /**
+     * ConditionalOrExpression : finalise
+     * @param $result
+     */
+    public function ConditionalOrExpression__finalise(&$result)
+    {
+        if(isset($result['a']) && isset($result['a']['return'])){
+            $result['return'] = array($result['a']['return']);
+        }else{
+            $result['return'] = array();
+        }
+        if(isset($result['b']) && isset($result['b']['return'])){
+            $elements = array_merge($result['return'],$result['b']['return']);
+            $newBnode = $this->graph->newBNode(array('sp:or'));
+
+            $lastBnode = $newBnode;
+
+            while(count($elements)>2){
+                $this->graph->add($lastBnode,'sp:var1',array_shift($elements));
+                $lastBnodeTmp = $this->graph->newBNode(array('sp:or'));
+                $this->graph->add($lastBnode,'sp:var2',$lastBnodeTmp);
+                $lastBnode = $lastBnodeTmp;
+            }
+            $this->graph->add($lastBnode,'sp:var1',$elements[0]);
+            $this->graph->add($lastBnode,'sp:var2',$elements[1]);
+            $result['return'] = $newBnode;
+        }else{
+            $result['return'] = $result['return'][0];
+        }
     }
 
     /**
